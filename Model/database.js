@@ -10,7 +10,7 @@ admin.initializeApp({
 var db = admin.firestore();
 
 var db_model = {
-    add2DB: async function () {
+    add2DB: async function () { //example
         let docRef = db.collection('users').doc();
         let setAda = await docRef.set({
             first: 'Ada',
@@ -56,9 +56,9 @@ var db_model = {
 }
 
 module.exports = db_model;
-var x = {
-    username: "linhhtq@gmail.com",
-    locations: "hihihhih",
-    name:"linhtq"
-}
-db_model.addUser(x).then(r => console.log(r)).catch(e=> console.log("that bai"));
+// var x = {
+//     username: "linhhtq@gmail.com",
+//     locations: "hihihhih",
+//     name:"linhtq"
+// }
+// db_model.addUser(x).then(r => console.log(r)).catch(e=> console.log("that bai"));
