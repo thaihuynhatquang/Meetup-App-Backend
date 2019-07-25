@@ -8,5 +8,4 @@ module.exports = {
     // callbackURL:'/auth/google/redirect'
   },
   jsecure: "messagefromserver",
-  mongodb: "mongodb://linh:0001Sever@ds147436.mlab.com:47436/weatherdatabase"
 };
