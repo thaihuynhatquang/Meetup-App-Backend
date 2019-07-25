@@ -10,8 +10,10 @@ module.exports = {
       user_route.loginGoogle(req, res) // To Do: trong ham loginGoole, neu user chua ton tai thi phai set them cac thuoc tinh mac dinh cua user nhu location, groups[], meetings[] (chua lam)
     );
     //To Do
-    app.patch("/user/profile",(req,res)=> user_route.updateProfile(req,res));
-    app.get("/user/notify",(req, res) => user_route.getNotify(req, res));
+    app.post("/user/FreeTimeForGroup",jsonParser,(req,res)=> user_route.setFreeTimeForGroup(req,res))
+    app.patch("/user/profile",jsonParser,(req,res)=> user_route.updateProfile(req,res));// lam duoc thi tot
+    app.get("/user/profile",(req,res)=> user_route.getProfile(req,res));// lam duoc thi tot
+    app.get("/user/notify",(req, res) => user_route.getNotify(req, res));// lam duoc thi tot
 
     app.post("/groupadmin/createGroup",jsonParser,(req,res)=>groupadmin_route.createGroup(req,res));
     app.patch("/groupadmin/updateGroupInfo",jsonParser,(req,res)=>groupadmin_route.updateGroupInfo(req,res)); //update cac thong tin group
