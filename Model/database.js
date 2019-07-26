@@ -163,22 +163,20 @@ var db_model = {
           .get();
         if (!memDoc.empty) {
           console.log('tìm thấy  user trong group');
+          let userTimeArr = {};
+          userTimeArr.name = memDoc.data().name;
+
           if (memDoc.data().freetimes != undefined && memDoc.data().freetimes instanceof Array) {
-            console.log('user có mảng freetime!');
 
             let freeTimeList = memDoc.data().freetimes;
-            let userTimeArr = {};
-            userTimeArr.name = memDoc.data().name;
             userTimeArr.freetimes = [];
+            let overDateData = [];
             for (let i = 0; i < freeTimeList.length; i++) {
               //check time is current or future , if not delete it
-              let overDateData = [];
               var freeFrom = new Date(freeTimeList[i].from.toDate());
               var freeTo = new Date(freeTimeList[i].to.toDate());
               var curDate = new Date();
-              if (freeTo < curDate) {
-                console.log(freeTo,"<",curDate)
-                console.log("time deu")
+              if (freeTo < curDate ) {
                 overDateData.push(i);
                 continue;
               } else {
@@ -190,8 +188,10 @@ var db_model = {
                 // }
               }
             }
-            resultUserTimeArr.push(userTimeArr);
+            // Todo : xóa bỏ các khoảng thời gian đã hết hạn của người dùng ( có index được lưu trong mảng overDateData)
           }
+          resultUserTimeArr.push(userTimeArr);
+
         }
       }
 
@@ -199,6 +199,8 @@ var db_model = {
     }
     return Promise.reject(null);
   },
+
+  
 };
 
 module.exports = db_model;
