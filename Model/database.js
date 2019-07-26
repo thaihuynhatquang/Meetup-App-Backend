@@ -42,6 +42,18 @@ var db_model = {
       throw error;
     }
   },
+  getUsers: async () => {
+    try {
+      const markers = [];
+      let userRef = await db.collection('users').get();
+      userRef.forEach((doc) => {
+        markers.push(doc.data());
+      });
+      return markers;
+    } catch (error) {
+      throw error;
+    }
+  },
 
   //Groups
   addGroup: async (newGroup) => {
