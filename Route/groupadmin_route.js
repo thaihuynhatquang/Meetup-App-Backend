@@ -9,8 +9,10 @@ var groupadmin_router = {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
       // token không xác thực được
+      console.log(req.headers);
+      console.log('Loi roi');
       res.statusCode = 401;
-      res.send();
+      res.send('Không xác thực được người dùng');
     } else {
       var newGroups = {};
       let groupAvatar = req.files != null ? req.files.groupAvatar : null;
@@ -27,19 +29,17 @@ var groupadmin_router = {
           await groupAvatar.mv(file);
           newGroups.groupAvatar = databasePath;
         }
-        (newGroups.name = req.body.name),
+        (newGroups.groupName = req.body.groupName),
           (newGroups.category = req.body.category),
           (newGroups.adminEmail = req.body.adminEmail),
           (newGroups.description = req.body.description),
           (newGroups.member = req.body.member);
-        console.log(newGroups);
         await db.addGroup(newGroups);
-        res.status(201).send(newGroups);
+        res.status(200).send(newGroups);
       } catch (error) {
         console.log(error);
         res.statusCode = 500;
         res.send();
-        // return Promise.reject(new Error("update profile fail"))
       }
     }
   },
