@@ -1,16 +1,29 @@
 var db = require('../Model/database');
 const secure = require('./secure');
-var verifier = require('google-id-token-verifier');
-var androidId = require('./key').google.androidID;
-var iosId = require('./key').google.iosID;
 
 var groupadmin_router = {
+  getGroupByUserID: async (req, res) => {
+    let user = secure.verifyUserToken(req.headers.authorization);
+    if (user == null) {
+      res.statusCode = 401;
+      res.send('Không xác thực được người dùng');
+    } else {
+      let username = secure.verifyUserToken(token).u;
+      db.getGroupByUserID(username)
+        .then((result) => {
+          res.status(200).send(result);
+        })
+        .catch((error) => {
+          console.log(error);
+          res.statusCode = 401;
+          res.send();
+        });
+    }
+  },
+
   createGroup: async function(req, res) {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
-      // token không xác thực được
-      console.log(req.headers);
-      console.log('Loi roi');
       res.statusCode = 401;
       res.send('Không xác thực được người dùng');
     } else {
