@@ -54,6 +54,17 @@ var db_model = {
       throw error;
     }
   },
+  getCurrentUser: async (userName) => {
+    try {
+      let user = await db
+        .collection('users')
+        .doc(userName)
+        .get();
+      return user.data();
+    } catch (error) {
+      throw error;
+    }
+  },
 
   getGroupsByUserID: async (userID) => {
     let userDoc = await db

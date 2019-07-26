@@ -6,17 +6,26 @@ var iosId = require('./key').google.iosID;
 
 var user_router = {
   auth: function(req, res) {
-    var token = req.body.token;
-    console.log(req.body);
+    var token = req.headers.authorization;
     if (secure.verifyUserToken(token)) {
-      res.statusCode = 200;
-      res.send(req.body.favorite);
+      const userName = secure.verifyUserToken(token).u;
+      db.getCurrentUser(userName)
+        .then((result) => {
+          res.statusCode = 200;
+          res.send(result);
+        })
+        .catch((error) => {
+          console.log(error);
+          res.statusCode = 401;
+          res.send();
+        });
     } else {
       res.statusCode = 401;
       res.send('Unauthenticated');
     }
   },
   loginGoogle: function(req, res) {
+    console.log(req.body);
     var clientId = req.body.platform == 'ios' ? iosId : androidId;
     verifier.verify(req.body.token, clientId, function(err, tokenInfo) {
       if (!err) {
@@ -35,12 +44,7 @@ var user_router = {
               n: result.name,
             });
             res.statusCode = 200;
-            res.send(
-              JSON.stringify({
-                token: token,
-                userInformation: newUser,
-              }),
-            );
+            res.send({ token: token });
           })
           .catch((error) => {
             console.log(error);
@@ -55,6 +59,7 @@ var user_router = {
   },
   getUsers: function(req, res) {
     let user = secure.verifyUserToken(req.headers.authorization);
+    console.log(req.headers);
     if (user == null) {
       // token không xác thực được
       console.log(req.headers);
