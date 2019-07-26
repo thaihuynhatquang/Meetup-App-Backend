@@ -1,11 +1,11 @@
 module.exports = {
   google: {
     androidID:
-      "1006888220040-3vua1st0dqarg1tlnkgbe15je1m99nl5.apps.googleusercontent.com",
+      "692104320733-smgll849p0g9hctvfis8v6vijearhgrb.apps.googleusercontent.com",
     iosID:
-      "1006888220040-905i11ihfvjq25cik2h0q7fsjpsg6vfj.apps.googleusercontent.com"
+      "692104320733-34vomf575vhln2lie4r9lkp844csbo9j.apps.googleusercontent.com"
     // clientSecret: 'tZ-Ao-jFMZ7ovPg1PlklRH2A',
     // callbackURL:'/auth/google/redirect'
   },
-  jsecure: "messagefromserver",
+  jsecure: "messagefromserver"
 };
