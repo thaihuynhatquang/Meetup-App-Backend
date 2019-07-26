@@ -5,7 +5,7 @@ var groupadmin_route = require('./groupadmin_route');
 module.exports = {
   route: function(app) {
     app.get('/', (req, res) => res.send('Hello, I am OK now!'));
-    app.post('/user/auth', jsonParser, (req, res) => user_route.auth(req, res));
+    app.get('/user/auth', jsonParser, (req, res) => user_route.auth(req, res));
     app.get('/user', (req, res) => user_route.getUsers(req, res));
 
     // To Do: trong ham loginGoole, neu user chua ton tai thi phai set them cac thuoc tinh mac dinh cua user nhu location, groups[], meetings[] (chua lam)
