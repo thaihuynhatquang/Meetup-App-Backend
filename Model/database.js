@@ -71,9 +71,37 @@ var db_model = {
       return Promise.reject(error);
     }
   },
+
+  addMemberToGroup: async (groupid, listUserID) => {
+    if(!(listUserID instanceof Array)) return Promise.reject(false);
+    let grCollection = db.collection('groups').doc(groupid);
+    let gr = await grCollection.get();
+    if(!gr.empty){
+      let currListMember= gr.data().member;
+      // console.log(currListMember);
+      // let currListMember
+      let userCollection = db.collection('users');
+      for(let i=0; i<listUserID.length; i++){
+        let uid= listUserID[i];
+        currListMember.push(uid);
+        var udoc= await userCollection.doc(uid).get();
+        let newListGroup= udoc.data().groups;
+        if(newListGroup== undefined) newListGroup=[];
+        newListGroup.push(groupid);
+        await userCollection.doc(uid).update({groups:newListGroup});
+      };
+      await grCollection.update({
+        member:currListMember
+      })
+      return Promise.resolve(true);
+
+    }
+    return Promise.resolve(false);
+  },
 };
 
 module.exports = db_model;
+db_model.addMemberToGroup("Group1.thaihuynhatquang@gmail.com", ["00n1lBtebVkhUY5iSZPS","OJXKyv9giT6dXYTtw3zn"]);
 // var x = {
 //     username: "linhhtq@gmail.com",
 //     locations: "hihihhih",
