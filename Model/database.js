@@ -149,33 +149,67 @@ var db_model = {
       .collection('groups')
       .doc(groupid)
       .get();
-    // if(!grCollection.empty){
-    //   //Todo: chỉnh tên biến range_from, range_to cho hợp với tên biến trên database, 2 biến này thể hiện khoảng thời gian admin mong muốn tổ chức meetings.
-    //   let range_start= new Date(grCollection.data().range_from);
-    //   let range_end=new Date(grCollection.data().range_to);
-    //   let listMembers= grCollection.data().member;
-    //   listMembers.forEach(memid => {
-    //     let memDoc=await db.collection("users").doc(memid).get();
-    //     if(!memDoc.empty){
-    //       if(memDoc.data().freetimes != undefined1 && !(memDoc.data().freetimes instanceof Array)){
-    //         for(let i=0; i< memDoc.data().freetimes.length; i++){
-    //           //check time is current or future , if not delete it
-    //           var freeFrom= new Date(freetimes[i].from);
-    //           var freeTo= new Date(freetimes[i].to)
-    //           var curDate=  new Date();
-    //         }
-    //       }
-    //     }
-    //   });
-    // }
+    if (!grCollection.empty) {
+      //Todo: chỉnh tên biến range_from, range_to cho hợp với tên biến trên database, 2 biến này thể hiện khoảng thời gian admin mong muốn tổ chức meetings.
+      let range_start = new Date(grCollection.data().range_from.toDate());
+      let range_end = new Date(grCollection.data().range_to.toDate());
+      let listMembers = grCollection.data().member;
+      let resultUserTimeArr = [];
+      for (var m = 0; m < listMembers.length; m++) {
+        let memid = listMembers[m];
+        let memDoc = await db
+          .collection('users')
+          .doc(memid)
+          .get();
+        if (!memDoc.empty) {
+          console.log('tìm thấy  user trong group');
+          if (memDoc.data().freetimes != undefined && memDoc.data().freetimes instanceof Array) {
+            console.log('user có mảng freetime!');
+
+            let freeTimeList = memDoc.data().freetimes;
+            let userTimeArr = {};
+            userTimeArr.name = memDoc.data().name;
+            userTimeArr.freetimes = [];
+            for (let i = 0; i < freeTimeList.length; i++) {
+              //check time is current or future , if not delete it
+              let overDateData = [];
+              var freeFrom = new Date(freeTimeList[i].from.toDate());
+              var freeTo = new Date(freeTimeList[i].to.toDate());
+              var curDate = new Date();
+              if (freeTo < curDate) {
+                console.log(freeTo,"<",curDate)
+                console.log("time deu")
+                overDateData.push(i);
+                continue;
+              } else {
+                // if(freeFrom<=range_end){
+                let freetime = {};
+                freetime.from = freeFrom > range_start ? freeFrom : range_start;
+                freetime.to = freeTo < range_end ? freeTo : range_end;
+                userTimeArr.freetimes.push(freetime);
+                // }
+              }
+            }
+            resultUserTimeArr.push(userTimeArr);
+          }
+        }
+      }
+
+      return Promise.resolve(resultUserTimeArr);
+    }
+    return Promise.reject(null);
   },
 };
 
 module.exports = db_model;
 db_model
-  .getGroupsByUserID('thaihuynhatquang@gmail.com')
+  .getUserTimeInGroup('Group1.thaihuynhatquang@gmail.com')
   .then((r) => console.log(r))
   .catch((e) => console.log(e));
+// db_model
+//   .getGroupsByUserID('thaihuynhatquang@gmail.com')
+//   .then((r) => console.log(r))
+//   .catch((e) => console.log(e));
 // db_model.searchUser("quang").then(r=>console.log(r)).catch(e=>console.log(e));
 // db_model.addMemberToGroup("Group1.thaihuynhatquang@gmail.com", ["00n1lBtebVkhUY5iSZPS","OJXKyv9giT6dXYTtw3zn"]);
 // var x = {
