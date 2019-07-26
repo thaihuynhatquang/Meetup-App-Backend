@@ -15,8 +15,8 @@ module.exports = {
     app.get('/user/profile', (req, res) => user_route.getProfile(req, res)); // lam duoc thi tot
     app.get('/user/notify', (req, res) => user_route.getNotify(req, res)); // lam duoc thi tot
 
-    app.get('/group/', jsonParser, (req, res) => groupadmin_route.getGroupByUserID(req, res)); //DONE
-    app.post('/group/createGroup', jsonParser, (req, res) => groupadmin_route.createGroup(req, res)); //DONE
+    app.get('/group/', jsonParser, (req, res) => groupadmin_route.getGroupsByUserID(req, res)); //DONE
+    app.post('/group/', jsonParser, (req, res) => groupadmin_route.createGroup(req, res)); //DONE
     app.put('/group/updateGroupInfo', jsonParser, (req, res) => groupadmin_route.updateGroupInfo(req, res)); //update cac thong tin group
     app.put('/group/updateGroupMembers', jsonParser, (req, res) => groupadmin_route.updateGroupMembers(req, res)); // them, sua, xoa member sau do gui lai danh sach member vao api nay
     app.get('/group/members_time', (req, res) => groupadmin_route.getMembersTime(req, res)); //lay du lieu thong ke de show graph

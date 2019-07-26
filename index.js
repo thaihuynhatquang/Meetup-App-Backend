@@ -23,7 +23,7 @@ app.use((req, res, next) => {
 var route = require("./Route/main_route");
 route.route(app);
 app.use(upload.array());
-app.use("/img", express.static("images"));
+app.use("/images", express.static("images"));
 
 app.listen(process.env.PORT || 9000, () => {
   console.log("MeetUP Server đang hoạt động ở cổng 9000 !");

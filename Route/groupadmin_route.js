@@ -2,14 +2,14 @@ var db = require('../Model/database');
 const secure = require('./secure');
 
 var groupadmin_router = {
-  getGroupByUserID: async (req, res) => {
+  getGroupsByUserID: async (req, res) => {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
       res.statusCode = 401;
       res.send('Không xác thực được người dùng');
     } else {
-      let username = secure.verifyUserToken(token).u;
-      db.getGroupByUserID(username)
+      let username = secure.verifyUserToken(req.headers.authorization).u;
+      db.getGroupsByUserID(username)
         .then((result) => {
           res.status(200).send(result);
         })
@@ -40,13 +40,14 @@ var groupadmin_router = {
           // console.log(databasePath, " <- databasePath");
           var file = path.join(__dirname, '..', serverPath);
           await groupAvatar.mv(file);
-          newGroups.groupAvatar = databasePath;
+          newGroups.groupAvatar = serverPath;
         }
         (newGroups.groupName = req.body.groupName),
           (newGroups.category = req.body.category),
           (newGroups.adminEmail = req.body.adminEmail),
           (newGroups.description = req.body.description),
           (newGroups.member = req.body.member);
+        console.log(newGroups);
         await db.addGroup(newGroups);
         res.status(200).send(newGroups);
       } catch (error) {
