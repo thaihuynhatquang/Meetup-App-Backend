@@ -98,10 +98,25 @@ var db_model = {
     }
     return Promise.resolve(false);
   },
+
+  searchUser: async(keysearch)=>{
+    var keysearch= String(keysearch).toLowerCase();
+    let userCollection= db.collection("users");
+    let resultArray= await userCollection.where('userName',">=","test").get();
+    if(!resultArray.empty){
+      let userArr=[];
+      resultArray.forEach(u=>{
+        userArr.push(u.data());
+      });
+      return Promise.resolve(userArr);
+    }
+    return Promise.reject(null);
+  }
 };
 
 module.exports = db_model;
-db_model.addMemberToGroup("Group1.thaihuynhatquang@gmail.com", ["00n1lBtebVkhUY5iSZPS","OJXKyv9giT6dXYTtw3zn"]);
+db_model.searchUser("quang").then(r=>console.log(r)).catch(e=>console.log(e));
+// db_model.addMemberToGroup("Group1.thaihuynhatquang@gmail.com", ["00n1lBtebVkhUY5iSZPS","OJXKyv9giT6dXYTtw3zn"]);
 // var x = {
 //     username: "linhhtq@gmail.com",
 //     locations: "hihihhih",
