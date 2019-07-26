@@ -21,42 +21,39 @@ var db_model = {
     console.log(setAda);
     return Promise.resolve(setAda);
   },
-  addUser: async function(user) {
+
+  //Users
+  manageUser: async (newUser) => {
     try {
-      let collection = db.collection('users');
-      let snapshot = await collection.where('email', '==', user.username).get();
-      if (snapshot.empty) {
-        console.log('User chua ton tai, tao tai khoan moi');
-        await collection.doc().set(user);
-        return Promise.resolve(true);
+      let userRef = await db
+        .collection('users')
+        .doc(newUser.userName)
+        .get();
+      if (!userRef.exists) {
+        await db
+          .collection('users')
+          .doc(newUser.userName)
+          .set(newUser);
+        return newUser;
       } else {
-        console.log('User da ton tai :)');
-        return Promise.reject(false);
+        return userRef.data();
       }
-      // console.log(query.fieldFilters);
     } catch (error) {
-      return Promise.reject(error);
-    }
-  },
-  getUser: async function(username) {
-    try {
-      let collection = db.collection('users');
-      let snapshot = await collection.where('username', '==', username).get();
-      if (!snapshot.empty) {
-        return Promise.resolve(snapshot.docs[0].data());
-      } else {
-        return Promise.reject(null);
-      }
-      // console.log(query.fieldFilters);
-    } catch (error) {
-      return Promise.reject(error);
+      throw error;
     }
   },
 
+  //Groups
   addGroup: async (newGroup) => {
     try {
       let collection = db.collection('groups');
-      let newGroupObject = await collection.doc().set(newGroup);
+      let currentUser = db
+        .collection('users')
+        .doc(newGroup.adminEmail)
+        .update({
+          groups: admin.firestore.FieldValue.arrayUnion(newGroup.groupName + '.' + newGroup.adminEmail),
+        });
+      let newGroupObject = await collection.doc(newGroup.groupName + '.' + newGroup.adminEmail).set(newGroup);
       return Promise.resolve(newGroupObject);
     } catch (error) {
       return Promise.reject(error);

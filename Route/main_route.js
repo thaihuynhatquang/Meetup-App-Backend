@@ -6,11 +6,9 @@ module.exports = {
   route: function(app) {
     app.get('/', (req, res) => res.send('Hello, I am OK now!'));
     app.post('/user/auth', jsonParser, (req, res) => user_route.auth(req, res));
-    app.post(
-      '/user/loginWithGoogle',
-      jsonParser,
-      (req, res) => user_route.loginGoogle(req, res), // To Do: trong ham loginGoole, neu user chua ton tai thi phai set them cac thuoc tinh mac dinh cua user nhu location, groups[], meetings[] (chua lam)
-    );
+
+    // To Do: trong ham loginGoole, neu user chua ton tai thi phai set them cac thuoc tinh mac dinh cua user nhu location, groups[], meetings[] (chua lam)
+    app.post('/user/loginWithGoogle', jsonParser, (req, res) => user_route.loginGoogle(req, res));
     //To Do
     app.post('/user/FreeTimeForGroup', jsonParser, (req, res) => user_route.setFreeTimeForGroup(req, res));
     app.patch('/user/profile', jsonParser, (req, res) => user_route.updateProfile(req, res)); // lam duoc thi tot
