@@ -35,7 +35,7 @@ var groupadmin_router = {
           (newGroups.description = req.body.description),
           (newGroups.member = req.body.member);
         await db.addGroup(newGroups);
-        res.status(201).send(newGroups);
+        res.status(200).send(newGroups);
       } catch (error) {
         console.log(error);
         res.statusCode = 500;
