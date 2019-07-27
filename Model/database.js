@@ -104,7 +104,6 @@ var db_model = {
       return Promise.reject(error);
     }
   },
-
   addMemberToGroup: async (groupid, listUserID) => {
     if (!(listUserID instanceof Array)) return Promise.reject(false);
     let grCollection = db.collection('groups').doc(groupid);
@@ -130,15 +129,19 @@ var db_model = {
     }
     return Promise.resolve(false);
   },
-
   searchUser: async (keysearch) => {
-    var keysearch = String(keysearch).toLowerCase();
+    var keysearch = String(keysearch).toLowerCase().trim();
+    if(keysearch=="") return Promise.resolve(false);
     let userCollection = db.collection('users');
-    let resultArray = await userCollection.where('userName', '>=', 'test').get();
+    let resultArray = await userCollection.where('userName', '==', keysearch).get();
     if (!resultArray.empty) {
       let userArr = [];
       resultArray.forEach((u) => {
-        userArr.push(u.data());
+        let user=u.data();
+        delete(user.groups);
+        delete(user.dark);
+        user.id=u.id;
+        userArr.push(user);
       });
       return Promise.resolve(userArr);
     }
@@ -217,7 +220,7 @@ module.exports = db_model;
 //   .getGroupsByUserID('thaihuynhatquang@gmail.com')
 //   .then((r) => console.log(r))
 //   .catch((e) => console.log(e));
-// db_model.searchUser("quang").then(r=>console.log(r)).catch(e=>console.log(e));
+db_model.searchUser("thaihuynhatquang@gmail.com").then(r=>console.log(r)).catch(e=>console.log(e));
 // db_model.addMemberToGroup("Group1.thaihuynhatquang@gmail.com", ["00n1lBtebVkhUY5iSZPS","OJXKyv9giT6dXYTtw3zn"]);
 // var x = {
 //     username: "linhhtq@gmail.com",
