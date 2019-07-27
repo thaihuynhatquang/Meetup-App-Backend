@@ -22,10 +22,10 @@ var db_model = {
   },
 
   //Users
-  addUserDefaultProperties: (user)=>{
-    user.freetimes=[];
-    user.groups=[];
-    user.meetings=[];
+  addUserDefaultProperties: (user) => {
+    user.freetimes = [];
+    user.groups = [];
+    user.meetings = [];
     return user;
   },
   manageUser: async (newUser) => {
@@ -35,7 +35,7 @@ var db_model = {
         .doc(newUser.userName)
         .get();
       if (!userRef.exists) {
-        newUser=this.addUserDefaultProperties(newUser);
+        newUser = this.addUserDefaultProperties(newUser);
         await db
           .collection('users')
           .doc(newUser.userName)
@@ -105,7 +105,7 @@ var db_model = {
     }
     return Promise.reject(false);
   },
-  updateProfile: async (userid,updateObject) => {
+  updateProfile: async (userid, updateObject) => {
     let userCollection = db.collection('users');
     let userDoc = await userCollection.doc(userid).get();
     if (!userDoc.empty) {
@@ -114,18 +114,17 @@ var db_model = {
     }
     return Promise.reject(false);
   },
-  getUserProfile: async(uid)=>{
+  getUserProfile: async (uid) => {
     let userCollection = db.collection('users');
     let userDoc = await userCollection.doc(userid).get();
     if (!userDoc.empty) {
-      let user= userDoc.data();
+      let user = userDoc.data();
       delete user.dark;
       user.id = u.id;
       return Promise.resolve(user);
     }
     return Promise.reject(null);
   },
-
 
   //Groups
   getGroup: async (groupID) => {
@@ -140,10 +139,10 @@ var db_model = {
       throw error;
     }
   },
-  addGroupDefaultProperties: (group)=>{
-    group.member=[];
+  addGroupDefaultProperties: (group) => {
+    group.member = [];
   },
-  getGroupInfo: async (groupID)=>{
+  getGroupInfo: async (groupID) => {
     let grCollection = await db
       .collection('groups')
       .doc(groupID)
@@ -158,7 +157,7 @@ var db_model = {
   addGroup: async (newGroup) => {
     try {
       let collection = db.collection('groups');
-      newGroup= this.addGroupDefaultProperties(newGroup);
+      newGroup = this.addGroupDefaultProperties(newGroup);
       let currentUser = db
         .collection('users')
         .doc(newGroup.adminEmail)
@@ -171,27 +170,25 @@ var db_model = {
       return Promise.reject(error);
     }
   },
-  addMemberToGroup: async (groupid, listUserID) => {
-    if (!(listUserID instanceof Array)) return Promise.reject(false);
-    let grCollection = db.collection('groups').doc(groupid);
-    let gr = await grCollection.get();
-    if (!gr.empty) {
-      let currListMember = gr.data().member;
-      // console.log(currListMember);
-      // let currListMember
-      let userCollection = db.collection('users');
-      for (let i = 0; i < listUserID.length; i++) {
-        let uid = listUserID[i];
+  addMemberToGroup: async (groupID, listMemberID) => {
+    if (!(listMemberID instanceof Array)) return Promise.reject(false);
+    let groupDocRef = db.collection('groups').doc(groupID);
+    let group = await groupDocRef.get();
+    if (!group.empty) {
+      let currListMember = group.data().member;
+      let userCollectionRef = db.collection('users');
+      for (let i = 0; i < listMemberID.length; i++) {
+        let uid = listMemberID[i];
         currListMember.push(uid);
-        var udoc = await userCollection.doc(uid).get();
+        var udoc = await userCollectionRef.doc(uid).get();
         let newListGroup = udoc.data().groups;
         if (newListGroup == undefined) newListGroup = [];
-        newListGroup.push(groupid);
-        await userCollection.doc(uid).update({ groups: newListGroup });
+        newListGroup.push(groupID);
+        await userCollectionRef.doc(uid).update({ groups: newListGroup });
       }
-    } catch (error) {
-      throw error;
+      await groupDocRef.update({ member: currListMember });
     }
+    return groupDocRef.get().data()
   },
   searchUser: async (keysearch) => {
     var keysearch = String(keysearch)

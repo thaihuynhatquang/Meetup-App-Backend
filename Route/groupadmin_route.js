@@ -85,12 +85,12 @@ var groupadmin_router = {
       let groupID = req.body.groupID;
 
       db.addMemberToGroup(groupID, listMemberID)
-        .then(() => {
-          res.status(200).send();
+        .then((result) => {
+          res.status(200).send(result);
         })
         .catch((error) => {
           console.log(error);
-          res.statusCode = 401;
+          res.statusCode = 404;
           res.send();
         });
     }
