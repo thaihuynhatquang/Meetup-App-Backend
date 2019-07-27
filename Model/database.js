@@ -25,11 +25,9 @@ var db_model = {
   setFreeTimeForGroup: async (userName, groupName, freeTimeList) => {
     try {
       let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
-      if (!timeRef.get().exists) {
+      if (timeRef.get().exists) {
         let newDoc = {};
-        newDoc.location = {
-          lat,lon
-        }
+        newDoc.location = {};
         newDoc.freetimes = freeTimeList;
         await db
           .collection('timesAndPlace')
@@ -49,30 +47,28 @@ var db_model = {
     }
   },
   setLocationForGroup: async (userName, groupName, location) => {
-    try{
-      let timeRef = await db.collection('timeAndPlace').doc(groupName + '.' + userName);
-      if (!timeRef.get().exists)
-      {
+    try {
+      let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
+      if (timeRef.get().empty) {
         let newDoc = {};
         newDoc.freetimes = [];
         newDoc.location = location;
         await db
-          .collection('timeAndPlace')
-          .doc(groupName+ '.' + username)
+          .collection('timesAndPlace')
+          .doc(groupName + '.' + userName)
           .set(newDoc);
-          return newDoc;
+        return newDoc;
       } else {
-        timeRef.update(location);
+        timeRef.update({ location: location });
         let result = await db
           .collection('timesAndPlace')
-          .doc(groupName+'.'+userName)
+          .doc(groupName + '.' + userName)
           .get();
         return result.data();
       }
-    } catch (error)
-    { throw error;
+    } catch (error) {
+      throw error;
     }
-
   },
 
   //Users
@@ -165,7 +161,6 @@ var db_model = {
   //   }
   //   return Promise.reject(false);
   // }
-
 
   updateProfile: async (userid, updateObject) => {
     let userCollection = db.collection('users');
