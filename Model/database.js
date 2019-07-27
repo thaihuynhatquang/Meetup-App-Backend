@@ -25,9 +25,9 @@ var db_model = {
   setFreeTimeForGroup: async (userName, groupName, freeTimeList) => {
     try {
       let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
-      if (!timeRef.get().exists) {
+      if (timeRef.get().empty) {
         let newDoc = {};
-        newDoc.locations = {};
+        newDoc.location = {};
         newDoc.freetimes = freeTimeList;
         await db
           .collection('timesAndPlace')
@@ -35,7 +35,31 @@ var db_model = {
           .set(newDoc);
         return newDoc;
       } else {
-        timeRef.update({ freetimes: freeTimeList });
+        let updateDocs = await timeRef.update({ freetimes:  freeTimeList });
+        let result = await db
+          .collection('timesAndPlace')
+          .doc(groupName + '.' + userName)
+          .get();
+        return result.data();
+      }
+    } catch (error) {
+      throw error;
+    }
+  },
+  setLocationForGroup: async (userName, groupName, location) => {
+    try {
+      let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
+      if (timeRef.get().empty) {
+        let newDoc = {};
+        newDoc.freetimes = [];
+        newDoc.location = location;
+        await db
+          .collection('timesAndPlace')
+          .doc(groupName + '.' + userName)
+          .set(newDoc);
+        return newDoc;
+      } else {
+        timeRef.update({ location: location });
         let result = await db
           .collection('timesAndPlace')
           .doc(groupName + '.' + userName)
@@ -127,6 +151,17 @@ var db_model = {
     }
     return Promise.reject(false);
   },
+  // updateLocation: async (userid,locations) =>
+  // {
+  //   let userCollection = db.collection('user');
+  //   let userDoc = await userCollection.doc(userid).get();
+  //   if (!userDoc.empty){
+  //     await userCollection.doc(userid).update({locations: locations});
+  //     return Promise.resolve(true);
+  //   }
+  //   return Promise.reject(false);
+  // }
+
   updateProfile: async (userid, updateObject) => {
     let userCollection = db.collection('users');
     let userDoc = await userCollection.doc(userid).get();
@@ -136,16 +171,17 @@ var db_model = {
     }
     return Promise.reject(false);
   },
-  getUserProfile: async (uid) => {
-    let userCollection = db.collection('users');
-    let userDoc = await userCollection.doc(userid).get();
-    if (!userDoc.empty) {
-      let user = userDoc.data();
-      delete user.dark;
-      user.id = u.id;
-      return Promise.resolve(user);
+  getUserProfile: async (userName) => {
+    try {
+      let userCollection = db.collection('users');
+      let userDoc = await userCollection.doc(userName).get();
+      if (!userDoc.empty) {
+        let user = await userDoc.data();
+        return user;
+      }
+    } catch (error) {
+      throw error;
     }
-    return Promise.reject(null);
   },
 
   //Groups
@@ -280,27 +316,4 @@ var db_model = {
     return Promise.reject(null);
   },
 };
-// var freetime=[{from:new Date(2019,7,27,0,0,0,0),to:new Date(2019,7,27,10,0,0,0,0)},{from:new Date(2019,8,27,0,0,0,0),to:new Date(2019,8,27,10,0,0,0,0)}]
 module.exports = db_model;
-// db_model
-//   .updateFreeTime("laivansam1998@gmail.com",freetime)
-//   .then((r) => console.log(r))
-//   .catch((e) => console.log(e));
-// db_model
-//   .getGroupInfo('SGUET.thaihuynhatquang@gmail.com')
-//   .then((r) => console.log(r))
-//   .catch((e) => console.log(e));
-var body={
-  groupID: "Group Test.thaihuynhatquang@gmail.com",
-  listMemberID: [
-      "huynd.nguyen@gmail.com"
-  ]
-}
-// db_model.searchUser("thaihuynhatquang@gmail.com").then(r=>console.log(r)).catch(e=>console.log(e));
-db_model.addMemberToGroup(body.groupID, body.listMemberID);
-// var x = {
-//     username: "linhhtq@gmail.com",
-//     locations: "hihihhih",
-//     name:"linhtq"
-// }
-// db_model.addUser(x).then(r => console.log(r)).catch(e=> console.log("that bai"));
