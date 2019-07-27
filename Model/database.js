@@ -21,6 +21,32 @@ var db_model = {
     return Promise.resolve(setAda);
   },
 
+  //Freetime and place
+  setFreeTimeForGroup: async (userName, groupName, freeTimeList) => {
+    try {
+      let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
+      if (!timeRef.get().exists) {
+        let newDoc = {};
+        newDoc.location = [];
+        newDoc.freetimes = freeTimeList;
+        await db
+          .collection('timesAndPlace')
+          .doc(groupName + '.' + userName)
+          .set(newDoc);
+        return newDoc;
+      } else {
+        timeRef.update({ freetimes: freeTimeList });
+        let result = await db
+          .collection('timesAndPlace')
+          .doc(groupName + '.' + userName)
+          .get();
+        return result.data();
+      }
+    } catch (error) {
+      throw error;
+    }
+  },
+
   //Users
   manageUser: async (newUser) => {
     try {
