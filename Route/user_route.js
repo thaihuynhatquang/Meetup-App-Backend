@@ -5,6 +5,48 @@ var androidId = require('./key').google.androidID;
 var iosId = require('./key').google.iosID;
 
 var user_router = {
+  setFreeTimeForGroup: async (req, res) => {
+    let user = secure.verifyUserToken(req.headers.authorization);
+    if (user == null) {
+      res.statusCode = 403;
+      res.send('Không xác thực được người dùng');
+    } else {
+      const userName = user.u;
+      const groupName = req.body.groupName;
+      const freeTimeList = req.body.freeTimeList;
+      db.setFreeTimeForGroup(userName, groupName, freeTimeList)
+        .then((result) => {
+          console.log(result);
+          res.status(200).send(result);
+        })
+        .catch((error) => {
+          console.log(error);
+          res.statusCode = 400;
+          res.send(error);
+        });
+    }
+  },
+
+  searchUser: async (req, res) => {
+    let user = secure.verifyUserToken(req.headers.authorization);
+    if (user == null) {
+      res.statusCode = 403;
+      res.send('Không xác thực được người dùng');
+    } else {
+      let keyword = req.query.userName;
+      db.searchUser(keyword)
+        .then((result) => {
+          console.log(result);
+          res.status(200).send(result);
+        })
+        .catch((error) => {
+          console.log(error);
+          res.statusCode = 400;
+          res.send(error);
+        });
+    }
+  },
+
   auth: function(req, res) {
     var token = req.headers.authorization;
     if (secure.verifyUserToken(token)) {

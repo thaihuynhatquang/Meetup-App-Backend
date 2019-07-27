@@ -2,10 +2,10 @@ var db = require('../Model/database');
 const secure = require('./secure');
 
 var groupadmin_router = {
-  getGroup: async (req, res) => {
+   getGroup: async (req, res) => {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
-      res.statusCode = 401;
+      res.statusCode = 403;
       res.send('Không xác thực được người dùng');
     } else {
       let groupID = req.body.groupID;
@@ -15,7 +15,7 @@ var groupadmin_router = {
         })
         .catch((error) => {
           console.log(error);
-          res.statusCode = 404;
+          res.statusCode = 400;
           res.send(error);
         });
     }
@@ -24,7 +24,7 @@ var groupadmin_router = {
   getGroupsByUserID: async (req, res) => {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
-      res.statusCode = 401;
+      res.statusCode = 403;
       res.send('Không xác thực được người dùng');
     } else {
       let username = secure.verifyUserToken(req.headers.authorization).u;
@@ -34,7 +34,7 @@ var groupadmin_router = {
         })
         .catch((error) => {
           console.log(error);
-          res.statusCode = 401;
+          res.statusCode = 400;
           res.send();
         });
     }
@@ -43,7 +43,7 @@ var groupadmin_router = {
   createGroup: async function(req, res) {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
-      res.statusCode = 401;
+      res.statusCode = 403;
       res.send('Không xác thực được người dùng');
     } else {
       var newGroups = {};
@@ -69,7 +69,7 @@ var groupadmin_router = {
         res.status(200).send(newGroups);
       } catch (error) {
         console.log(error);
-        res.statusCode = 500;
+        res.statusCode = 400;
         res.send();
       }
     }
@@ -78,7 +78,7 @@ var groupadmin_router = {
   updateGroupMembers: async (req, res) => {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
-      res.statusCode = 401;
+      res.statusCode = 403;
       res.send('Không xác thực được người dùng');
     } else {
       let listMemberID = req.body.listMemberID;
@@ -90,7 +90,7 @@ var groupadmin_router = {
         })
         .catch((error) => {
           console.log(error);
-          res.statusCode = 404;
+          res.statusCode = 400;
           res.send();
         });
     }
