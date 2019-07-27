@@ -46,6 +46,30 @@ var db_model = {
       throw error;
     }
   },
+  setLocationForGroup: async (userName, groupName, location) => {
+    try {
+      let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
+      if (timeRef.get().empty) {
+        let newDoc = {};
+        newDoc.freetimes = [];
+        newDoc.location = location;
+        await db
+          .collection('timesAndPlace')
+          .doc(groupName + '.' + userName)
+          .set(newDoc);
+        return newDoc;
+      } else {
+        timeRef.update({ location: location });
+        let result = await db
+          .collection('timesAndPlace')
+          .doc(groupName + '.' + userName)
+          .get();
+        return result.data();
+      }
+    } catch (error) {
+      throw error;
+    }
+  },
 
   //Users
   manageUser: async (newUser) => {
@@ -118,15 +142,26 @@ var db_model = {
       throw error;
     }
   },
-  // updateFreeTime: async (userid, listFreeTime) => {
-  //   let userCollection = db.collection('users');
+  updateFreeTime: async (userid, listFreeTime) => {
+    let userCollection = db.collection('users');
+    let userDoc = await userCollection.doc(userid).get();
+    if (!userDoc.empty) {
+      await userCollection.doc(userid).update({ freetimes: listFreeTime });
+      return Promise.resolve(true);
+    }
+    return Promise.reject(false);
+  },
+  // updateLocation: async (userid,locations) =>
+  // {
+  //   let userCollection = db.collection('user');
   //   let userDoc = await userCollection.doc(userid).get();
-  //   if (!userDoc.empty) {
-  //     await userCollection.doc(userid).update({ freetimes: listFreeTime });
+  //   if (!userDoc.empty){
+  //     await userCollection.doc(userid).update({locations: locations});
   //     return Promise.resolve(true);
   //   }
   //   return Promise.reject(false);
-  // },
+  // }
+
   updateProfile: async (userid, updateObject) => {
     let userCollection = db.collection('users');
     let userDoc = await userCollection.doc(userid).get();

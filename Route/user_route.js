@@ -26,7 +26,27 @@ var user_router = {
         });
     }
   },
-
+  setLocationForGroup: async (req, res) => {
+    let user = secure.verifyUserToken(req.headers.authorization);
+    if (user == null) {
+      res.statusCode = 403;
+      res.send('Không xác thực được người dùng');
+    } else {
+      const userName = user.u;
+      const groupName = req.body.groupName;
+      const location = req.body.location;
+      db.setLocationForGroup(userName, groupName, location)
+        .then((result) => {
+          console.log(result);
+          res.status(200).send(result);
+        })
+        .catch((error) => {
+          console.log(error);
+          res.statusCode = 400;
+          res.send(error);
+        });
+    }
+  },
   searchUser: async (req, res) => {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
@@ -114,6 +134,8 @@ var user_router = {
           res.send();
         });
     }
+  },
+  setFreeTime: function(req, res) {
   },
   // setFreeTime: function(req, res) {
   //   fretime;
