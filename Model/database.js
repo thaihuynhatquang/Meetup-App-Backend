@@ -104,7 +104,19 @@ var db_model = {
     }
     return Promise.reject(false);
   },
-  
+  getUserProfile: async(uid)=>{
+    let userCollection = db.collection('users');
+    let userDoc = await userCollection.doc(userid).get();
+    if (!userDoc.empty) {
+      let user= userDoc.data();
+      delete user.groups;
+      delete user.dark;
+      user.id = u.id;
+      return Promise.resolve(user);
+    }
+    return Promise.reject(null);
+  },
+
 
   //Groups
   addGroup: async (newGroup) => {
