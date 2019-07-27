@@ -167,7 +167,6 @@ var db_model = {
           userTimeArr.name = memDoc.data().name;
 
           if (memDoc.data().freetimes != undefined && memDoc.data().freetimes instanceof Array) {
-
             let freeTimeList = memDoc.data().freetimes;
             userTimeArr.freetimes = [];
             let overDateData = [];
@@ -176,7 +175,7 @@ var db_model = {
               var freeFrom = new Date(freeTimeList[i].from.toDate());
               var freeTo = new Date(freeTimeList[i].to.toDate());
               var curDate = new Date();
-              if (freeTo < curDate ) {
+              if (freeTo < curDate) {
                 overDateData.push(i);
                 continue;
               } else {
@@ -191,7 +190,6 @@ var db_model = {
             // Todo : xóa bỏ các khoảng thời gian đã hết hạn của người dùng ( có index được lưu trong mảng overDateData)
           }
           resultUserTimeArr.push(userTimeArr);
-
         }
       }
 
@@ -199,15 +197,22 @@ var db_model = {
     }
     return Promise.reject(null);
   },
-
-  
+  updateFreeTime: async (userid, listFreeTime) => {
+    let userCollection = db.collection('users');
+    let userDoc = await userCollection.doc(userid).get();
+    if (!userDoc.empty) {
+      await userCollection.doc(userid).update({ freetimes: listFreeTime });
+      return Promise.resolve(true);
+    }
+    return Promise.reject(false);
+  },
 };
-
+// var freetime=[{from:new Date(2019,7,27,0,0,0,0),to:new Date(2019,7,27,10,0,0,0,0)},{from:new Date(2019,8,27,0,0,0,0),to:new Date(2019,8,27,10,0,0,0,0)}]
 module.exports = db_model;
-db_model
-  .getUserTimeInGroup('Group1.thaihuynhatquang@gmail.com')
-  .then((r) => console.log(r))
-  .catch((e) => console.log(e));
+// db_model
+//   .updateFreeTime("laivansam1998@gmail.com",freetime)
+//   .then((r) => console.log(r))
+//   .catch((e) => console.log(e));
 // db_model
 //   .getGroupsByUserID('thaihuynhatquang@gmail.com')
 //   .then((r) => console.log(r))
