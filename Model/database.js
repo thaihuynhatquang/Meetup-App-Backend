@@ -118,15 +118,15 @@ var db_model = {
       throw error;
     }
   },
-  updateFreeTime: async (userid, listFreeTime) => {
-    let userCollection = db.collection('users');
-    let userDoc = await userCollection.doc(userid).get();
-    if (!userDoc.empty) {
-      await userCollection.doc(userid).update({ freetimes: listFreeTime });
-      return Promise.resolve(true);
-    }
-    return Promise.reject(false);
-  },
+  // updateFreeTime: async (userid, listFreeTime) => {
+  //   let userCollection = db.collection('users');
+  //   let userDoc = await userCollection.doc(userid).get();
+  //   if (!userDoc.empty) {
+  //     await userCollection.doc(userid).update({ freetimes: listFreeTime });
+  //     return Promise.resolve(true);
+  //   }
+  //   return Promise.reject(false);
+  // },
   updateProfile: async (userid, updateObject) => {
     let userCollection = db.collection('users');
     let userDoc = await userCollection.doc(userid).get();
@@ -136,16 +136,17 @@ var db_model = {
     }
     return Promise.reject(false);
   },
-  getUserProfile: async (uid) => {
-    let userCollection = db.collection('users');
-    let userDoc = await userCollection.doc(uid).get();
-    if (!userDoc.empty) {
-      let user = userDoc.data();
-      delete user.dark;
-      user.id = userDoc.id;
-      return Promise.resolve(user);
+  getUserProfile: async (userName) => {
+    try {
+      let userCollection = db.collection('users');
+      let userDoc = await userCollection.doc(userName).get();
+      if (!userDoc.empty) {
+        let user = await userDoc.data();
+        return user;
+      }
+    } catch (error) {
+      throw error;
     }
-    return Promise.reject(null);
   },
 
   //Groups

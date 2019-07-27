@@ -115,14 +115,21 @@ var user_router = {
         });
     }
   },
-  setFreeTime: function(req, res) {
-    fretime;
-  },
+  // setFreeTime: function(req, res) {
+  //   fretime;
+  // },
   getProfile: async function(req, res) {
-    var uid = req.params.uid;
-    db.getUserProfile(uid)
-      .then((r) => res.status(200).send(r))
-      .catch((e) => console.log(e));
+    let user = secure.verifyUserToken(req.headers.authorization);
+    if (user == null) {
+      // token không xác thực được
+      res.statusCode = 401;
+      res.send('Không xác thực được người dùng');
+    } else {
+      var uid = user.u;
+      db.getUserProfile(uid)
+        .then((r) => res.status(200).send(r))
+        .catch((e) => console.log(e));
+    }
   },
 };
 module.exports = user_router;
