@@ -23,6 +23,12 @@ var db_model = {
   },
 
   //Users
+  addUserDefaultProperties: (user)=>{
+    user.freetimes=[];
+    user.groups=[];
+    user.meetings=[];
+    return user;
+  },
   manageUser: async (newUser) => {
     try {
       let userRef = await db
@@ -30,6 +36,7 @@ var db_model = {
         .doc(newUser.userName)
         .get();
       if (!userRef.exists) {
+        newUser=this.addUserDefaultProperties(newUser);
         await db
           .collection('users')
           .doc(newUser.userName)
@@ -118,6 +125,9 @@ var db_model = {
 
 
   //Groups
+  addGroupDefaultProperties: (group)=>{
+    group.member=[];
+  },
   getGroupInfo: async (groupID)=>{
     let grCollection = await db
       .collection('groups')
@@ -133,6 +143,7 @@ var db_model = {
   addGroup: async (newGroup) => {
     try {
       let collection = db.collection('groups');
+      newGroup= this.addGroupDefaultProperties(newGroup);
       let currentUser = db
         .collection('users')
         .doc(newGroup.adminEmail)
