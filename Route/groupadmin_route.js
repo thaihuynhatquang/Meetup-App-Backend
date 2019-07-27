@@ -2,6 +2,25 @@ var db = require('../Model/database');
 const secure = require('./secure');
 
 var groupadmin_router = {
+  getGroup: async (req, res) => {
+    let user = secure.verifyUserToken(req.headers.authorization);
+    if (user == null) {
+      res.statusCode = 401;
+      res.send('Không xác thực được người dùng');
+    } else {
+      let groupID = req.body.groupID;
+      db.getGroup(groupID)
+        .then((result) => {
+          res.status(200).send(result);
+        })
+        .catch((error) => {
+          console.log(error);
+          res.statusCode = 404;
+          res.send(error);
+        });
+    }
+  },
+
   getGroupsByUserID: async (req, res) => {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
@@ -46,15 +65,34 @@ var groupadmin_router = {
           (newGroups.category = req.body.category),
           (newGroups.adminEmail = req.body.adminEmail),
           (newGroups.description = req.body.description),
-          (newGroups.member = req.body.member);
-        console.log(newGroups);
-        await db.addGroup(newGroups);
+          await db.addGroup(newGroups);
         res.status(200).send(newGroups);
       } catch (error) {
         console.log(error);
         res.statusCode = 500;
         res.send();
       }
+    }
+  },
+
+  updateGroupMembers: async (req, res) => {
+    let user = secure.verifyUserToken(req.headers.authorization);
+    if (user == null) {
+      res.statusCode = 401;
+      res.send('Không xác thực được người dùng');
+    } else {
+      let listMemberID = req.body.listMemberID;
+      let groupID = req.body.groupID;
+
+      db.addMemberToGroup(groupID, listMemberID)
+        .then(() => {
+          res.status(200).send();
+        })
+        .catch((error) => {
+          console.log(error);
+          res.statusCode = 401;
+          res.send();
+        });
     }
   },
 };

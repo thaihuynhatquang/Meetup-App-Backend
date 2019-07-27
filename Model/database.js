@@ -18,7 +18,6 @@ var db_model = {
       last: 'Lovelace',
       born: 1815,
     });
-    console.log(setAda);
     return Promise.resolve(setAda);
   },
 
@@ -67,28 +66,44 @@ var db_model = {
   },
 
   getGroupsByUserID: async (userID) => {
-    let userDoc = await db
-      .collection('users')
-      .doc(userID)
-      .get();
-    if (!userDoc.empty) {
-      // return Promise.resolve(userDoc.data().groups);
-      let gidList = userDoc.data().groups;
-      let resultArr = [];
-      for (let i = 0; i < gidList.length; i++) {
-        let gid = gidList[i];
-        let grDoc = await db
-          .collection('groups')
-          .doc(gid)
-          .get();
-        if (!grDoc.empty) resultArr.push(grDoc.data());
+    try {
+      let userDoc = await db
+        .collection('users')
+        .doc(userID)
+        .get();
+      if (!userDoc.empty) {
+        let gidList = userDoc.data().groups;
+        if (gidList) {
+          let resultArr = [];
+          for (let i = 0; i < gidList.length; i++) {
+            let gid = gidList[i];
+            let grDoc = await db
+              .collection('groups')
+              .doc(gid)
+              .get();
+            if (!grDoc.empty) resultArr.push(grDoc.data());
+          }
+          return resultArr;
+        } else return;
       }
-      return Promise.resolve(resultArr);
+    } catch (error) {
+      throw error;
     }
-    return Promise.reject(null);
   },
 
   //Groups
+  getGroup: async (groupID) => {
+    try {
+      let group = await db
+        .collection('groups')
+        .doc(groupID)
+        .get();
+      console.log(group.data());
+      return group.data();
+    } catch (error) {
+      throw error;
+    }
+  },
   addGroup: async (newGroup) => {
     try {
       let collection = db.collection('groups');
@@ -105,30 +120,33 @@ var db_model = {
     }
   },
 
-  addMemberToGroup: async (groupid, listUserID) => {
-    if (!(listUserID instanceof Array)) return Promise.reject(false);
-    let grCollection = db.collection('groups').doc(groupid);
-    let gr = await grCollection.get();
-    if (!gr.empty) {
-      let currListMember = gr.data().member;
-      // console.log(currListMember);
-      // let currListMember
-      let userCollection = db.collection('users');
-      for (let i = 0; i < listUserID.length; i++) {
-        let uid = listUserID[i];
-        currListMember.push(uid);
-        var udoc = await userCollection.doc(uid).get();
-        let newListGroup = udoc.data().groups;
-        if (newListGroup == undefined) newListGroup = [];
-        newListGroup.push(groupid);
-        await userCollection.doc(uid).update({ groups: newListGroup });
+  addMemberToGroup: async (groupID, listMemberID) => {
+    try {
+      if (!(listMemberID instanceof Array)) return;
+      let grCollection = db.collection('groups').doc(groupID);
+      let gr = await grCollection.get();
+      if (!gr.empty) {
+        let currListMember = gr.data().member;
+        // console.log(currListMember);
+        // let currListMember
+        let userCollection = db.collection('users');
+        for (let i = 0; i < listMemberID.length; i++) {
+          let uid = listMemberID[i];
+          currListMember.push(uid);
+          var udoc = await userCollection.doc(uid).get();
+          let newListGroup = udoc.data().groups;
+          if (newListGroup == undefined) newListGroup = [];
+          newListGroup.push(groupID);
+          await userCollection.doc(uid).update({ groups: newListGroup });
+        }
+        await grCollection.update({
+          member: currListMember,
+        });
+        return Promise.resolve(true);
       }
-      await grCollection.update({
-        member: currListMember,
-      });
-      return Promise.resolve(true);
+    } catch (error) {
+      throw error;
     }
-    return Promise.resolve(false);
   },
 
   searchUser: async (keysearch) => {
@@ -162,7 +180,6 @@ var db_model = {
           .doc(memid)
           .get();
         if (!memDoc.empty) {
-          console.log('tìm thấy  user trong group');
           let userTimeArr = {};
           userTimeArr.name = memDoc.data().name;
 

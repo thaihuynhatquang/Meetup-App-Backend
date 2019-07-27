@@ -25,7 +25,6 @@ var user_router = {
     }
   },
   loginGoogle: function(req, res) {
-    console.log(req.body);
     var clientId = req.body.platform == 'ios' ? iosId : androidId;
     verifier.verify(req.body.token, clientId, function(err, tokenInfo) {
       if (!err) {
@@ -38,7 +37,6 @@ var user_router = {
 
         db.manageUser(newUser)
           .then((result) => {
-            console.log('result', result);
             let token = secure.createUserToken({
               u: result.userName,
               n: result.name,
@@ -59,11 +57,8 @@ var user_router = {
   },
   getUsers: function(req, res) {
     let user = secure.verifyUserToken(req.headers.authorization);
-    console.log(req.headers);
     if (user == null) {
       // token không xác thực được
-      console.log(req.headers);
-      console.log('Loi roi');
       res.statusCode = 401;
       res.send('Không xác thực được người dùng');
     } else {
