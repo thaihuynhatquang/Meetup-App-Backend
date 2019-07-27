@@ -27,7 +27,7 @@ var db_model = {
       let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
       if (!timeRef.get().exists) {
         let newDoc = {};
-        newDoc.location = [];
+        newDoc.locations = {};
         newDoc.freetimes = freeTimeList;
         await db
           .collection('timesAndPlace')
