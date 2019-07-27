@@ -138,11 +138,11 @@ var db_model = {
   },
   getUserProfile: async (uid) => {
     let userCollection = db.collection('users');
-    let userDoc = await userCollection.doc(userid).get();
+    let userDoc = await userCollection.doc(uid).get();
     if (!userDoc.empty) {
       let user = userDoc.data();
       delete user.dark;
-      user.id = u.id;
+      user.id = userDoc.id;
       return Promise.resolve(user);
     }
     return Promise.reject(null);
@@ -280,27 +280,4 @@ var db_model = {
     return Promise.reject(null);
   },
 };
-// var freetime=[{from:new Date(2019,7,27,0,0,0,0),to:new Date(2019,7,27,10,0,0,0,0)},{from:new Date(2019,8,27,0,0,0,0),to:new Date(2019,8,27,10,0,0,0,0)}]
 module.exports = db_model;
-// db_model
-//   .updateFreeTime("laivansam1998@gmail.com",freetime)
-//   .then((r) => console.log(r))
-//   .catch((e) => console.log(e));
-// db_model
-//   .getGroupInfo('SGUET.thaihuynhatquang@gmail.com')
-//   .then((r) => console.log(r))
-//   .catch((e) => console.log(e));
-var body={
-  groupID: "Group Test.thaihuynhatquang@gmail.com",
-  listMemberID: [
-      "huynd.nguyen@gmail.com"
-  ]
-}
-// db_model.searchUser("thaihuynhatquang@gmail.com").then(r=>console.log(r)).catch(e=>console.log(e));
-db_model.addMemberToGroup(body.groupID, body.listMemberID);
-// var x = {
-//     username: "linhhtq@gmail.com",
-//     locations: "hihihhih",
-//     name:"linhtq"
-// }
-// db_model.addUser(x).then(r => console.log(r)).catch(e=> console.log("that bai"));
