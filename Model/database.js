@@ -109,7 +109,6 @@ var db_model = {
     let userDoc = await userCollection.doc(userid).get();
     if (!userDoc.empty) {
       let user= userDoc.data();
-      delete user.groups;
       delete user.dark;
       user.id = u.id;
       return Promise.resolve(user);
@@ -119,6 +118,18 @@ var db_model = {
 
 
   //Groups
+  getGroupInfo: async (groupID)=>{
+    let grCollection = await db
+      .collection('groups')
+      .doc(groupID)
+      .get();
+    if (!grCollection.empty) {
+      let gr = grCollection.data();
+      // gr.id=groupID;
+      return Promise.reject(gr);
+    }
+    return Promise.reject(null);
+  },
   addGroup: async (newGroup) => {
     try {
       let collection = db.collection('groups');
@@ -240,7 +251,7 @@ module.exports = db_model;
 //   .then((r) => console.log(r))
 //   .catch((e) => console.log(e));
 // db_model
-//   .getGroupsByUserID('thaihuynhatquang@gmail.com')
+//   .getGroupInfo('SGUET.thaihuynhatquang@gmail.com')
 //   .then((r) => console.log(r))
 //   .catch((e) => console.log(e));
 // db_model.searchUser("thaihuynhatquang@gmail.com").then(r=>console.log(r)).catch(e=>console.log(e));
