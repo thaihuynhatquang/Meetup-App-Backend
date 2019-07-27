@@ -27,7 +27,7 @@ var db_model = {
       let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
       if (!timeRef.get().exists) {
         let newDoc = {};
-        newDoc.location = [];
+        newDoc.locations = {};
         newDoc.freetimes = freeTimeList;
         await db
           .collection('timesAndPlace')
@@ -290,8 +290,14 @@ module.exports = db_model;
 //   .getGroupInfo('SGUET.thaihuynhatquang@gmail.com')
 //   .then((r) => console.log(r))
 //   .catch((e) => console.log(e));
+var body={
+  groupID: "Group Test.thaihuynhatquang@gmail.com",
+  listMemberID: [
+      "huynd.nguyen@gmail.com"
+  ]
+}
 // db_model.searchUser("thaihuynhatquang@gmail.com").then(r=>console.log(r)).catch(e=>console.log(e));
-// db_model.addMemberToGroup("Group1.thaihuynhatquang@gmail.com", ["00n1lBtebVkhUY5iSZPS","OJXKyv9giT6dXYTtw3zn"]);
+db_model.addMemberToGroup(body.groupID, body.listMemberID);
 // var x = {
 //     username: "linhhtq@gmail.com",
 //     locations: "hihihhih",
