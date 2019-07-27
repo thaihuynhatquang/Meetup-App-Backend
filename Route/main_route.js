@@ -8,7 +8,7 @@ module.exports = {
     app.get('/user', (req, res) => user_route.getUsers(req, res));
     app.get('/user/auth', jsonParser, (req, res) => user_route.auth(req, res));
     app.post('/user/loginWithGoogle', jsonParser, (req, res) => user_route.loginGoogle(req, res));
-
+    app.get('/user/search', jsonParser, (req, res) => user_route.searchUser(req, res));
     //To Do
     app.post('/user/FreeTimeForGroup', jsonParser, (req, res) => user_route.setFreeTimeForGroup(req, res));
     app.put('/user/profile', jsonParser, (req, res) => user_route.updateProfile(req, res)); // lam duoc thi tot

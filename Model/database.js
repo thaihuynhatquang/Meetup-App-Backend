@@ -22,12 +22,6 @@ var db_model = {
   },
 
   //Users
-  addUserDefaultProperties: (user) => {
-    user.freetimes = [];
-    user.groups = [];
-    user.meetings = [];
-    return user;
-  },
   manageUser: async (newUser) => {
     try {
       let userRef = await db
@@ -35,7 +29,9 @@ var db_model = {
         .doc(newUser.userName)
         .get();
       if (!userRef.exists) {
-        newUser = this.addUserDefaultProperties(newUser);
+        newUser.freetimes = [];
+        newUser.groups = [];
+        newUser.meetings = [];
         await db
           .collection('users')
           .doc(newUser.userName)
@@ -139,9 +135,6 @@ var db_model = {
       throw error;
     }
   },
-  addGroupDefaultProperties: (group) => {
-    group.member = [];
-  },
   getGroupInfo: async (groupID) => {
     let grCollection = await db
       .collection('groups')
@@ -157,7 +150,8 @@ var db_model = {
   addGroup: async (newGroup) => {
     try {
       let collection = db.collection('groups');
-      newGroup = this.addGroupDefaultProperties(newGroup);
+      newGroup.member = [newGroup.adminEmail];
+      console.log(newGroup);
       let currentUser = db
         .collection('users')
         .doc(newGroup.adminEmail)
@@ -188,27 +182,24 @@ var db_model = {
       }
       await groupDocRef.update({ member: currListMember });
     }
-    return groupDocRef.get().data()
+    let updatedGroup = await groupDocRef.get();
+    return updatedGroup.data();
   },
   searchUser: async (keysearch) => {
-    var keysearch = String(keysearch)
-      .toLowerCase()
-      .trim();
-    if (keysearch == '') return Promise.resolve(false);
-    let userCollection = db.collection('users');
-    let resultArray = await userCollection.where('userName', '==', keysearch).get();
-    if (!resultArray.empty) {
-      let userArr = [];
-      resultArray.forEach((u) => {
-        let user = u.data();
-        delete user.groups;
-        delete user.dark;
-        user.id = u.id;
-        userArr.push(user);
-      });
-      return Promise.resolve(userArr);
+    try {
+      console.log(keysearch);
+      let userCollection = db.collection('users');
+      let resultArray = await userCollection.where('userName', '==', keysearch.toLowerCase()).get();
+      if (!resultArray.empty) {
+        let userArr = [];
+        resultArray.forEach((user) => {
+          userArr.push(user.data());
+        });
+        return userArr;
+      }
+    } catch (error) {
+      throw error;
     }
-    return Promise.reject(null);
   },
   getUserTimeInGroup: async (groupid) => {
     let grCollection = await db
