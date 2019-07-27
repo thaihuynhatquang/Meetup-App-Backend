@@ -22,6 +22,12 @@ var db_model = {
   },
 
   //Users
+  addUserDefaultProperties: (user)=>{
+    user.freetimes=[];
+    user.groups=[];
+    user.meetings=[];
+    return user;
+  },
   manageUser: async (newUser) => {
     try {
       let userRef = await db
@@ -29,6 +35,7 @@ var db_model = {
         .doc(newUser.userName)
         .get();
       if (!userRef.exists) {
+        newUser=this.addUserDefaultProperties(newUser);
         await db
           .collection('users')
           .doc(newUser.userName)
@@ -64,7 +71,6 @@ var db_model = {
       throw error;
     }
   },
-
   getGroupsByUserID: async (userID) => {
     try {
       let userDoc = await db
@@ -90,6 +96,36 @@ var db_model = {
       throw error;
     }
   },
+  updateFreeTime: async (userid, listFreeTime) => {
+    let userCollection = db.collection('users');
+    let userDoc = await userCollection.doc(userid).get();
+    if (!userDoc.empty) {
+      await userCollection.doc(userid).update({ freetimes: listFreeTime });
+      return Promise.resolve(true);
+    }
+    return Promise.reject(false);
+  },
+  updateProfile: async (userid,updateObject) => {
+    let userCollection = db.collection('users');
+    let userDoc = await userCollection.doc(userid).get();
+    if (!userDoc.empty) {
+      await userCollection.doc(userid).update(updateObject);
+      return Promise.resolve(true);
+    }
+    return Promise.reject(false);
+  },
+  getUserProfile: async(uid)=>{
+    let userCollection = db.collection('users');
+    let userDoc = await userCollection.doc(userid).get();
+    if (!userDoc.empty) {
+      let user= userDoc.data();
+      delete user.dark;
+      user.id = u.id;
+      return Promise.resolve(user);
+    }
+    return Promise.reject(null);
+  },
+
 
   //Groups
   getGroup: async (groupID) => {
@@ -104,9 +140,25 @@ var db_model = {
       throw error;
     }
   },
+  addGroupDefaultProperties: (group)=>{
+    group.member=[];
+  },
+  getGroupInfo: async (groupID)=>{
+    let grCollection = await db
+      .collection('groups')
+      .doc(groupID)
+      .get();
+    if (!grCollection.empty) {
+      let gr = grCollection.data();
+      // gr.id=groupID;
+      return Promise.reject(gr);
+    }
+    return Promise.reject(null);
+  },
   addGroup: async (newGroup) => {
     try {
       let collection = db.collection('groups');
+      newGroup= this.addGroupDefaultProperties(newGroup);
       let currentUser = db
         .collection('users')
         .doc(newGroup.adminEmail)
@@ -119,44 +171,43 @@ var db_model = {
       return Promise.reject(error);
     }
   },
-
-  addMemberToGroup: async (groupID, listMemberID) => {
-    try {
-      if (!(listMemberID instanceof Array)) return;
-      let grCollection = db.collection('groups').doc(groupID);
-      let gr = await grCollection.get();
-      if (!gr.empty) {
-        let currListMember = gr.data().member;
-        // console.log(currListMember);
-        // let currListMember
-        let userCollection = db.collection('users');
-        for (let i = 0; i < listMemberID.length; i++) {
-          let uid = listMemberID[i];
-          currListMember.push(uid);
-          var udoc = await userCollection.doc(uid).get();
-          let newListGroup = udoc.data().groups;
-          if (newListGroup == undefined) newListGroup = [];
-          newListGroup.push(groupID);
-          await userCollection.doc(uid).update({ groups: newListGroup });
-        }
-        await grCollection.update({
-          member: currListMember,
-        });
-        return Promise.resolve(true);
+  addMemberToGroup: async (groupid, listUserID) => {
+    if (!(listUserID instanceof Array)) return Promise.reject(false);
+    let grCollection = db.collection('groups').doc(groupid);
+    let gr = await grCollection.get();
+    if (!gr.empty) {
+      let currListMember = gr.data().member;
+      // console.log(currListMember);
+      // let currListMember
+      let userCollection = db.collection('users');
+      for (let i = 0; i < listUserID.length; i++) {
+        let uid = listUserID[i];
+        currListMember.push(uid);
+        var udoc = await userCollection.doc(uid).get();
+        let newListGroup = udoc.data().groups;
+        if (newListGroup == undefined) newListGroup = [];
+        newListGroup.push(groupid);
+        await userCollection.doc(uid).update({ groups: newListGroup });
       }
     } catch (error) {
       throw error;
     }
   },
-
   searchUser: async (keysearch) => {
-    var keysearch = String(keysearch).toLowerCase();
+    var keysearch = String(keysearch)
+      .toLowerCase()
+      .trim();
+    if (keysearch == '') return Promise.resolve(false);
     let userCollection = db.collection('users');
-    let resultArray = await userCollection.where('userName', '>=', 'test').get();
+    let resultArray = await userCollection.where('userName', '==', keysearch).get();
     if (!resultArray.empty) {
       let userArr = [];
       resultArray.forEach((u) => {
-        userArr.push(u.data());
+        let user = u.data();
+        delete user.groups;
+        delete user.dark;
+        user.id = u.id;
+        userArr.push(user);
       });
       return Promise.resolve(userArr);
     }
@@ -214,15 +265,6 @@ var db_model = {
     }
     return Promise.reject(null);
   },
-  updateFreeTime: async (userid, listFreeTime) => {
-    let userCollection = db.collection('users');
-    let userDoc = await userCollection.doc(userid).get();
-    if (!userDoc.empty) {
-      await userCollection.doc(userid).update({ freetimes: listFreeTime });
-      return Promise.resolve(true);
-    }
-    return Promise.reject(false);
-  },
 };
 // var freetime=[{from:new Date(2019,7,27,0,0,0,0),to:new Date(2019,7,27,10,0,0,0,0)},{from:new Date(2019,8,27,0,0,0,0),to:new Date(2019,8,27,10,0,0,0,0)}]
 module.exports = db_model;
@@ -231,10 +273,10 @@ module.exports = db_model;
 //   .then((r) => console.log(r))
 //   .catch((e) => console.log(e));
 // db_model
-//   .getGroupsByUserID('thaihuynhatquang@gmail.com')
+//   .getGroupInfo('SGUET.thaihuynhatquang@gmail.com')
 //   .then((r) => console.log(r))
 //   .catch((e) => console.log(e));
-// db_model.searchUser("quang").then(r=>console.log(r)).catch(e=>console.log(e));
+// db_model.searchUser("thaihuynhatquang@gmail.com").then(r=>console.log(r)).catch(e=>console.log(e));
 // db_model.addMemberToGroup("Group1.thaihuynhatquang@gmail.com", ["00n1lBtebVkhUY5iSZPS","OJXKyv9giT6dXYTtw3zn"]);
 // var x = {
 //     username: "linhhtq@gmail.com",
