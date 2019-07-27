@@ -25,7 +25,7 @@ var db_model = {
   setFreeTimeForGroup: async (userName, groupName, freeTimeList) => {
     try {
       let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
-      if (timeRef.get().exists) {
+      if (timeRef.get().empty) {
         let newDoc = {};
         newDoc.location = {};
         newDoc.freetimes = freeTimeList;
@@ -35,7 +35,7 @@ var db_model = {
           .set(newDoc);
         return newDoc;
       } else {
-        timeRef.update({ freetimes: freeTimeList });
+        let updateDocs = await timeRef.update({ freetimes:  freeTimeList });
         let result = await db
           .collection('timesAndPlace')
           .doc(groupName + '.' + userName)
