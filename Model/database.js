@@ -25,23 +25,25 @@ var db_model = {
   setFreeTimeForGroup: async (userName, groupName, freeTimeList) => {
     try {
       let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
-      if (timeRef.get().empty) {
-        let newDoc = {};
-        newDoc.location = {};
-        newDoc.freetimes = freeTimeList;
-        await db
-          .collection('timesAndPlace')
-          .doc(groupName + '.' + userName)
-          .set(newDoc);
-        return newDoc;
-      } else {
-        let updateDocs = await timeRef.update({ freetimes:  freeTimeList });
-        let result = await db
-          .collection('timesAndPlace')
-          .doc(groupName + '.' + userName)
-          .get();
-        return result.data();
-      }
+      let timeRef2 = timeRef.get().then(async (doc) => {
+        if (doc.exists) {
+          timeRef.update({ freetimes: freeTimeList });
+          let result = await db
+            .collection('timesAndPlace')
+            .doc(groupName + '.' + userName)
+            .get();
+          return result.data();
+        } else {
+          let newDoc = {};
+          newDoc.location = {};
+          newDoc.freetimes = freeTimeList;
+          await db
+            .collection('timesAndPlace')
+            .doc(groupName + '.' + userName)
+            .set(newDoc);
+          return newDoc;
+        }
+      });
     } catch (error) {
       throw error;
     }
@@ -49,23 +51,25 @@ var db_model = {
   setLocationForGroup: async (userName, groupName, location) => {
     try {
       let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
-      if (timeRef.get().empty) {
-        let newDoc = {};
-        newDoc.freetimes = [];
-        newDoc.location = location;
-        await db
-          .collection('timesAndPlace')
-          .doc(groupName + '.' + userName)
-          .set(newDoc);
-        return newDoc;
-      } else {
-        timeRef.update({ location: location });
-        let result = await db
-          .collection('timesAndPlace')
-          .doc(groupName + '.' + userName)
-          .get();
-        return result.data();
-      }
+      let timeRef2 = timeRef.get().then(async (doc) => {
+        if (doc.exists) {
+          timeRef.update({ location: location });
+          let result = await db
+            .collection('timesAndPlace')
+            .doc(groupName + '.' + userName)
+            .get();
+          return result.data();
+        } else {
+          let newDoc = {};
+          newDoc.freetimes = [];
+          newDoc.location = location;
+          await db
+            .collection('timesAndPlace')
+            .doc(groupName + '.' + userName)
+            .set(newDoc);
+          return newDoc;
+        }
+      });
     } catch (error) {
       throw error;
     }
@@ -106,7 +110,7 @@ var db_model = {
       throw error;
     }
   },
-  getCurrentUser: async (userName) => {
+  getUserByUserName: async (userName) => {
     try {
       let user = await db
         .collection('users')
@@ -185,6 +189,35 @@ var db_model = {
   },
 
   //Groups
+  getListMember: async (groupID) => {
+    try {
+      let groupRef = await db
+        .collection('groups')
+        .doc(groupID)
+        .get();
+      //  console.log(group.data().member);
+      // let memList = group.data().member;
+      let group = await groupRef.data();
+      if (group) return group.member;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getLocationFromUserName: async (groupName, userName) => {
+    try {
+      let locationRef = await db
+        .collection('timesAndPlace')
+        .doc(groupName + '.' + userName)
+        .get();
+      //  console.log(group.data().member);
+      let memLocations = await locationRef.data();
+      //if  (memLocations)
+      // console.log(memLocations);
+      return memLocations;
+    } catch (error) {
+      throw error;
+    }
+  },
   getGroup: async (groupID) => {
     try {
       let group = await db
@@ -192,7 +225,7 @@ var db_model = {
         .doc(groupID)
         .get();
       console.log(group.data());
-      return group.data();
+      return group.data().location;
     } catch (error) {
       throw error;
     }
@@ -213,7 +246,6 @@ var db_model = {
     try {
       let collection = db.collection('groups');
       newGroup.member = [newGroup.adminEmail];
-      console.log(newGroup);
       let currentUser = db
         .collection('users')
         .doc(newGroup.adminEmail)
@@ -224,6 +256,28 @@ var db_model = {
       return Promise.resolve(newGroupObject);
     } catch (error) {
       return Promise.reject(error);
+    }
+  },
+  updateGroupInformation: async (newGroup) => {
+    try {
+      let group = await db
+        .collection('groups')
+        .doc(newGroup.groupName + '.' + newGroup.adminEmail)
+        .update({
+          category: newGroup.category,
+          description: newGroup.description,
+          groupName: newGroup.groupName,
+          startDate: newGroup.startDate,
+          endDate: newGroup.endDate,
+        });
+
+      let currentObject = await db
+        .collection('groups')
+        .doc(newGroup.groupName + '.' + newGroup.adminEmail)
+        .get();
+      return Promise.resolve(currentObject.data());
+    } catch (error) {
+      throw error;
     }
   },
   addMemberToGroup: async (groupID, listMemberID) => {
@@ -318,6 +372,33 @@ var db_model = {
     }
     return Promise.reject(null);
   },
+  getUserInGroup: async (groupID) => {
+    try {
+      let groupCollection = db.collection('groups');
+      let groupDoc = await groupCollection.doc(groupID).get();
+      if (!groupDoc.empty) {
+        let group = await groupDoc.data();
+        console.log(groupDoc.data());
+        return group.member;
+      }
+    } catch (error) {
+      throw error;
+    }
+  },
+  getTimeAndLocationUserOfGroup: async (groupName, userName) => {
+    try {
+      let timePlaceId = groupName + '.' + userName;
+      let timePlaceCollection = db.collection('timesAndPlace');
+      let timePlaceDoc = await timePlaceCollection.doc(timePlaceId).get();
+      if (!timePlaceDoc.empty) {
+        let timePlace = await timePlaceDoc.data();
+        // console.log(timePlaceDoc.data());
+        return timePlace;
+      }
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 module.exports = db_model;
 // db_model.getUserTimeInGroup("Đi chơi Trung thu.thaihuynhatquang@gmail.com").then(r=>{
@@ -325,3 +406,9 @@ module.exports = db_model;
 //     // console.log(user);
 //   })
 // }).catch(e=>console.log(e));
+
+// db_model
+//   .getLocationFromUserName('Ai là triệu phú', 'thaihuynhatquang@gmail.com')
+//   .then((r) => console.log(r))
+//   .catch((e) => console.log(e));
+// db_model.getLocation("Ai là triệu phú","")

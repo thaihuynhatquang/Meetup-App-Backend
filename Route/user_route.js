@@ -72,7 +72,7 @@ var user_router = {
     var token = req.headers.authorization;
     if (secure.verifyUserToken(token)) {
       const userName = secure.verifyUserToken(token).u;
-      db.getCurrentUser(userName)
+      db.getUserByUserName(userName)
         .then((result) => {
           res.statusCode = 200;
           res.send(result);
