@@ -225,7 +225,7 @@ var db_model = {
         .doc(groupID)
         .get();
       console.log(group.data());
-      return group.data().location;
+      return group.data();
     } catch (error) {
       throw error;
     }

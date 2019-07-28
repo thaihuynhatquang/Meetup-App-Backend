@@ -1,5 +1,6 @@
 var db = require('../Model/database');
 var timeModel = require('../Model/timemodel');
+var findMidpoint = require('../Route/midPoint_route');
 const secure = require('./secure');
 var Array = [];
 var groupadmin_router = {
@@ -35,21 +36,20 @@ var groupadmin_router = {
       const groupID = groupName + '.' + userName;
       console.log(groupID);
       let tempArr = [];
-      const result = await db.getListMember(groupID)
-      for (let i = 0; i<result.length;i++){
+      const result = await db.getListMember(groupID);
+      for (let i = 0; i < result.length; i++) {
         // console.log(member);
         let member = result[i];
-        const r =  await  db.getLocationFromUserName(groupName, member)
+        const r = await db.getLocationFromUserName(groupName, member);
         if (r) {
           let temp = r.location;
 
           let tempLocation = { name: member, lat: temp.lat, lon: temp.lon };
           // console.log(temp);
-          tempArr.push(tempLocation);
+          if (tempLocation.lat) tempArr.push(tempLocation);
         }
-      };
-      console.log(tempArr)
-
+      }
+      res.status(200).send(findMidpoint.MeatUp(tempArr));
     }
   },
 
@@ -200,45 +200,47 @@ var groupadmin_router = {
     }
   },
 
-  getFreeTimeOfGroup: (req,res)=>{
-    let groupID= req.body.gid;
-   db.getUserTimeInGroup(groupID).then (freeArr=>{
-    if(freeArr instanceof Array){
-    let result = [];
-      console.log(freeArr);
-      freeArr.forEach(member=>{
-        // console.log(member);
-        if(member.freetimes instanceof Array)
-        member.freetimes.forEach(time=>{
-          // console.log("vàooooo!")
-          // console.log(time);
-          let timeObj=time;
-          timeObj.name= member.name;
-          result = timeModel.addTimeToArray(timeObj,result);
-        })
-      })
-      let final=[];
-      result.forEach(time=>{
-        let obj= {};
-        // obj.x=time.from.toString().substr(5,10)+"-"+time.to.toString().substr(5,10);
-        obj.x=time.from.toString()+"-"+time.to.toString();
+  getFreeTimeOfGroup: (req, res) => {
+    let groupID = req.body.gid;
+    db.getUserTimeInGroup(groupID)
+      .then((freeArr) => {
+        if (freeArr instanceof Array) {
+          let result = [];
+          console.log(freeArr);
+          freeArr.forEach((member) => {
+            // console.log(member);
+            if (member.freetimes instanceof Array)
+              member.freetimes.forEach((time) => {
+                // console.log("vàooooo!")
+                // console.log(time);
+                let timeObj = time;
+                timeObj.name = member.name;
+                result = timeModel.addTimeToArray(timeObj, result);
+              });
+          });
+          let final = [];
+          result.forEach((time) => {
+            let obj = {};
+            // obj.x=time.from.toString().substr(5,10)+"-"+time.to.toString().substr(5,10);
+            obj.x = time.from.toString() + '-' + time.to.toString();
 
-        obj.y=time.freeMembers.length;
-        obj.freeMembers=time.freeMembers;
-        final.push(obj);
+            obj.y = time.freeMembers.length;
+            obj.freeMembers = time.freeMembers;
+            final.push(obj);
+          });
+          res.statusCode = 200;
+          res.send(final);
+        } else {
+          res.statusCode = 500;
+          res.send();
+        }
       })
-      res.statusCode=200;
-      res.send(final);
-    }else{
-      res.statusCode=500;
-      res.send();
-    }
-  }).catch((error) => {
-    console.log(error);
-    res.statusCode = 400;
-    res.send();
-  });
-}
-}
-module.exports = groupadmin_router
+      .catch((error) => {
+        console.log(error);
+        res.statusCode = 400;
+        res.send();
+      });
+  },
+};
+module.exports = groupadmin_router;
 // groupadmin_router.getFreeTimeOfGroup("Đi chơi Trung thu.thaihuynhatquang@gmail.com").then(r=>console.log(r))

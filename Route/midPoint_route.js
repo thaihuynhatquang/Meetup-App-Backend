@@ -7,27 +7,12 @@ function Location(lat, lon, day, month, year) {
   this.lon = lon;
 }
 var midPoint_route = {
-  FindBestLocation: async (req, res) => {
-
-    let user = secure.verifyUserToken(req.headers.authorization);
-    if (user == null) {
-      res.statusCode = 403;
-      res.send('Không xác thực được người dùng');
-    } else {
-      const groupName = req.body.groupName;
-
-    }
-  },
-
-
-
-  MeatUp: function(req, res) {
+  MeatUp: function(data) {
     var totweight = 0;
     this.x = 0;
     this.y = 0;
     this.z = 0;
 
-    var data = req.body.locations;
     var n = data.length;
     for (let i = 0; i < n; i++) {
       data[i].lat = (data[i].lat * PI) / 180;
@@ -35,7 +20,7 @@ var midPoint_route = {
       data[i].x = Math.cos(data[i].lat) * Math.cos(data[i].lon);
       data[i].y = Math.cos(data[i].lat) * Math.sin(data[i].lon);
       data[i].z = Math.sin(data[i].lat);
-      data[i].w =1;
+      data[i].w = 1;
       totweight += data[i].w;
       this.x += data[i].x * data[i].w;
       this.y += data[i].y * data[i].w;
@@ -50,8 +35,7 @@ var midPoint_route = {
     Lat = (Lat * 180) / PI;
     Lon = (Lon * 180) / PI;
     var MeatUpLocation = new Location(Lat, Lon, data[0].day, data[0].month, data[0].year);
-    res.statusCode = 200;
-    res.send({lat: MeatUpLocation.lat,lon:MeatUpLocation.lon})
+    return { lat: MeatUpLocation.lat, lon: MeatUpLocation.lon };
   },
 };
 module.exports = midPoint_route;
