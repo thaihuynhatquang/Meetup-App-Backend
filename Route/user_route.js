@@ -14,6 +14,7 @@ var user_router = {
       const userName = user.u;
       const groupName = req.body.groupName;
       const listFreeTimes = req.body.listFreeTimes;
+      db.updateFreeTime(user.u,listFreeTimes);
       db.setFreeTimeForGroup(userName, groupName, listFreeTimes)
         .then((result) => {
           console.log(result);
