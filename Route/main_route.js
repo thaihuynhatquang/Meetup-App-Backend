@@ -12,7 +12,9 @@ module.exports = {
     app.get('/user/search', jsonParser, (req, res) => user_route.searchUser(req, res));
     app.post('/user/freeTime', jsonParser, (req, res) => user_route.setFreeTimeForGroup(req, res));
     app.post('/user/location', jsonParser, (req, res) => user_route.setLocationForGroup(req, res));
+
     app.post('/group/location', jsonParser, (req, res) => groupadmin_route.getLocation(req, res));
+
     //To Do
     app.put('/user/profile', jsonParser, (req, res) => user_route.updateProfile(req, res)); // lam duoc thi tot
     app.get('/user/notify', (req, res) => user_route.getNotify(req, res)); // lam duoc thi tot

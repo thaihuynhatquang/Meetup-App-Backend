@@ -1,7 +1,11 @@
 var db = require('../Model/database');
 const secure = require('./secure');
-
+var Array = [];
 var groupadmin_router = {
+  save: function (array)
+  {
+    Array = array;
+  },
   getGroup: async (req, res) => {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
@@ -22,6 +26,7 @@ var groupadmin_router = {
   },
   //To Do
   getLocation: async (req, res) => {
+    var Array = [];
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
       res.statusCode = 403;
@@ -29,31 +34,25 @@ var groupadmin_router = {
     } else {
       let userName = user.u;
 
-      const groupName = req.body.name;
+      const groupName = req.body.groupName;
       const groupID = groupName + '.' + userName;
       console.log(groupID);
+      let tempArr = [];
+      const result = await db.getListMember(groupID)
+      for (let i = 0; i<result.length;i++){
+        // console.log(member);
+        let member = result[i];
+        const r =  await  db.getLocationFromUserName(groupName, member)
+        if (r) {
+          let temp = r.location;
 
-      db.getListMember(groupID)
-        .then((result) => {
+          let tempLocation = { name: member, lat: temp.lat, lon: temp.lon };
+          // console.log(temp);
+          tempArr.push(tempLocation);
+        }
+      };
+      console.log(tempArr)
 
-          result.forEach((member) => {
-            db.getLocationFromUserName(groupName, member).then((r) => {
-              if (r) {
-                let temp = r.location;
-                let tempLocation = { name: member, lat: temp.lat, lon: temp.lon };
-                // console.log(temp);
-
-                res.status(200).send(tempLocation);
-              }
-            });
-          });
-
-        })
-        .catch((error) => {
-          console.log(error);
-          res.statusCode = 400;
-          res.send();
-        });
     }
   },
 

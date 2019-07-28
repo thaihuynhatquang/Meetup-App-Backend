@@ -1,9 +1,26 @@
+var db = require('../Model/database');
+const secure = require('./secure');
+var groupadmin_route = require('./groupadmin_route');
 var PI = Math.PI;
 function Location(lat, lon, day, month, year) {
   this.lat = lat;
   this.lon = lon;
 }
 var midPoint_route = {
+  FindBestLocation: async (req, res) => {
+
+    let user = secure.verifyUserToken(req.headers.authorization);
+    if (user == null) {
+      res.statusCode = 403;
+      res.send('Không xác thực được người dùng');
+    } else {
+      const groupName = req.body.groupName;
+
+    }
+  },
+
+
+
   MeatUp: function(req, res) {
     var totweight = 0;
     this.x = 0;
