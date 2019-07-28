@@ -232,9 +232,22 @@ var db_model = {
   },
   updateGroupInformation: async (newGroup) => {
     try {
-      let collection = db.collection('groups');
-      let newGroupObject = await collection.doc(newGroup.groupName + '.' + newGroup.adminEmail).set(newGroup);
-      return Promise.resolve(newGroupObject);
+      let group = await db
+        .collection('groups')
+        .doc(newGroup.groupName + '.' + newGroup.adminEmail)
+        .update({
+          category: newGroup.category,
+          description: newGroup.description,
+          groupName: newGroup.groupName,
+          startDate: newGroup.startDate,
+          endDate: newGroup.endDate,
+        });
+
+      let currentObject = await db
+        .collection('groups')
+        .doc(newGroup.groupName + '.' + newGroup.adminEmail)
+        .get();
+      return Promise.resolve(currentObject.data());
     } catch (error) {
       throw error;
     }
