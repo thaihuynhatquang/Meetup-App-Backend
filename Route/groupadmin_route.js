@@ -2,7 +2,7 @@ var db = require('../Model/database');
 const secure = require('./secure');
 
 var groupadmin_router = {
-   getGroup: async (req, res) => {
+  getGroup: async (req, res) => {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
       res.statusCode = 403;
@@ -65,6 +65,8 @@ var groupadmin_router = {
           (newGroups.category = req.body.category),
           (newGroups.adminEmail = req.body.adminEmail),
           (newGroups.description = req.body.description),
+          (newGroups.startDate = req.body.startDate),
+          (newGroups.endDate = req.body.endDate),
           await db.addGroup(newGroups);
         res.status(200).send(newGroups);
       } catch (error) {
