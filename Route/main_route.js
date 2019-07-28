@@ -27,5 +27,7 @@ module.exports = {
     app.get('/group/:groupid/members_time', (req, res) => groupadmin_route.getMembersTime(req, res)); //lay du lieu thong ke de show graph
     app.post('/group/createMeeting', jsonParser, (req, res) => groupadmin_route.createMeeting(req, res)); // tao meeting moi ( sau khi da xem thong ke)
     app.post('/group/midPoint', jsonParser, (req, res) => midPoint_route.MeatUp(req, res));
+    app.get('/group/:gid/freeTime', jsonParser, (req, res) => groupadmin_route.getFreeTimeOfGroup(req,res));
+
   },
 };

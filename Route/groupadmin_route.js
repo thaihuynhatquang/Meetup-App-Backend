@@ -99,29 +99,35 @@ var groupadmin_router = {
     }
   },
 
-  getFreeTimeOfGroup: async(gid,res)=>{
-    let groupID= gid;
-    let freeArr= await db.getUserTimeInGroup(groupID);
+  getFreeTimeOfGroup: (req,res)=>{
+    let groupID= req.params.gid;
+   db.getUserTimeInGroup(groupID).then (freeArr=>{
     if(freeArr instanceof Array){
     let result = [];
-    console.log(freeArr);
-    freeArr.forEach(member=>{
-      // console.log(member);
-      if(member.freetimes instanceof Array)
-      member.freetimes.forEach(time=>{
-        console.log("vàooooo!")
-        console.log(time);
-        let timeObj=time;
-        timeObj.name= member.name;
-        result = timeModel.addTimeToArray(timeObj,result);
+      console.log(freeArr);
+      freeArr.forEach(member=>{
+        // console.log(member);
+        if(member.freetimes instanceof Array)
+        member.freetimes.forEach(time=>{
+          // console.log("vàooooo!")
+          // console.log(time);
+          let timeObj=time;
+          timeObj.name= member.name;
+          result = timeModel.addTimeToArray(timeObj,result);
+        })
       })
-    })
-    return Promise.resolve(result);
-
-  }else{
-    return Promise.reject(false);
-  }
+      res.statusCode=200;
+      res.send(result);
+    }else{
+      res.statusCode=500;
+      res.send();
+    }
+  }).catch((error) => {
+    console.log(error);
+    res.statusCode = 400;
+    res.send();
+  });
 }
 }
 module.exports = groupadmin_router
-groupadmin_router.getFreeTimeOfGroup("Đi chơi Trung thu.thaihuynhatquang@gmail.com").then(r=>console.log(r))
+// groupadmin_router.getFreeTimeOfGroup("Đi chơi Trung thu.thaihuynhatquang@gmail.com").then(r=>console.log(r))
