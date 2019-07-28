@@ -218,7 +218,6 @@ var db_model = {
     try {
       let collection = db.collection('groups');
       newGroup.member = [newGroup.adminEmail];
-      console.log(newGroup);
       let currentUser = db
         .collection('users')
         .doc(newGroup.adminEmail)
@@ -229,6 +228,15 @@ var db_model = {
       return Promise.resolve(newGroupObject);
     } catch (error) {
       return Promise.reject(error);
+    }
+  },
+  updateGroupInformation: async (newGroup) => {
+    try {
+      let collection = db.collection('groups');
+      let newGroupObject = await collection.doc(newGroup.groupName + '.' + newGroup.adminEmail).set(newGroup);
+      return Promise.resolve(newGroupObject);
+    } catch (error) {
+      throw error;
     }
   },
   addMemberToGroup: async (groupID, listMemberID) => {

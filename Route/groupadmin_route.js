@@ -78,6 +78,43 @@ var groupadmin_router = {
     }
   },
 
+  updateGroupInformation: async (req, res) => {
+    let user = secure.verifyUserToken(req.headers.authorization);
+    if (user == null) {
+      res.statusCode = 403;
+      res.send('Không xác thực được người dùng');
+    } else {
+      var newGroups = {};
+      let groupAvatar = req.files != null ? req.files.groupAvatar : null;
+      try {
+        if (groupAvatar !== null) {
+          var path = require('path');
+          // // tạo ra đường dẫn để lưu vào database
+          let databasePath = user.u + '__' + secure.createSalt() + groupAvatar.name;
+          // // tạo đường dẫn để ghi file
+          let serverPath = '/images/groups/' + databasePath;
+
+          // console.log(databasePath, " <- databasePath");
+          var file = path.join(__dirname, '..', serverPath);
+          await groupAvatar.mv(file);
+          newGroups.groupAvatar = serverPath;
+        }
+        (newGroups.groupName = req.body.groupName),
+          (newGroups.category = req.body.category),
+          (newGroups.adminEmail = req.body.adminEmail),
+          (newGroups.description = req.body.description),
+          (newGroups.startDate = req.body.startDate),
+          (newGroups.endDate = req.body.endDate),
+          await db.updateGroupInformation(newGroups);
+        res.status(200).send(newGroups);
+      } catch (error) {
+        console.log(error);
+        res.statusCode = 400;
+        res.send();
+      }
+    }
+  },
+
   updateGroupMembers: async (req, res) => {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
