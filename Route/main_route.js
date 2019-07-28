@@ -17,7 +17,7 @@ module.exports = {
     app.get('/group/', jsonParser, (req, res) => groupadmin_route.getGroupsByUserID(req, res)); //DONE
     app.post('/group/groupID', jsonParser, (req, res) => groupadmin_route.getGroup(req, res)); //DONE
     app.put('/group/updateGroupMembers', jsonParser, (req, res) => groupadmin_route.updateGroupMembers(req, res)); // DONE
-
+    app.post('/group/member', jsonParser, (req, res) => groupadmin_route.getGroupMember(req, res));
     //To Do
     app.put('/user/profile', jsonParser, (req, res) => user_route.updateProfile(req, res)); // lam duoc thi tot
     app.get('/user/notify', (req, res) => user_route.getNotify(req, res)); // lam duoc thi tot

@@ -24,25 +24,27 @@ var db_model = {
   //Freetime and place
   setFreeTimeForGroup: async (userName, groupName, freeTimeList) => {
     try {
-      this.updateFreeTime(userName,freeTimeList);
+      db_model.updateFreeTime(userName, freeTimeList);
       let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
-      if (timeRef.get().empty) {
-        let newDoc = {};
-        newDoc.location = {};
-        newDoc.freetimes = freeTimeList;
-        await db
-          .collection('timesAndPlace')
-          .doc(groupName + '.' + userName)
-          .set(newDoc);
-        return newDoc;
-      } else {
-        let updateDocs = await timeRef.update({ freetimes:  freeTimeList });
-        let result = await db
-          .collection('timesAndPlace')
-          .doc(groupName + '.' + userName)
-          .get();
-        return result.data();
-      }
+      let timeRef2 = timeRef.get().then(async (doc) => {
+        if (doc.exists) {
+          timeRef.update({ freetimes: freeTimeList });
+          let result = await db
+            .collection('timesAndPlace')
+            .doc(groupName + '.' + userName)
+            .get();
+          return result.data();
+        } else {
+          let newDoc = {};
+          newDoc.location = {};
+          newDoc.freetimes = freeTimeList;
+          await db
+            .collection('timesAndPlace')
+            .doc(groupName + '.' + userName)
+            .set(newDoc);
+          return newDoc;
+        }
+      });
     } catch (error) {
       throw error;
     }
@@ -50,23 +52,25 @@ var db_model = {
   setLocationForGroup: async (userName, groupName, location) => {
     try {
       let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
-      if (timeRef.get().empty) {
-        let newDoc = {};
-        newDoc.freetimes = [];
-        newDoc.location = location;
-        await db
-          .collection('timesAndPlace')
-          .doc(groupName + '.' + userName)
-          .set(newDoc);
-        return newDoc;
-      } else {
-        timeRef.update({ location: location });
-        let result = await db
-          .collection('timesAndPlace')
-          .doc(groupName + '.' + userName)
-          .get();
-        return result.data();
-      }
+      let timeRef2 = timeRef.get().then(async (doc) => {
+        if (doc.exists) {
+          timeRef.update({ location: location });
+          let result = await db
+            .collection('timesAndPlace')
+            .doc(groupName + '.' + userName)
+            .get();
+          return result.data();
+        } else {
+          let newDoc = {};
+          newDoc.freetimes = [];
+          newDoc.location = location;
+          await db
+            .collection('timesAndPlace')
+            .doc(groupName + '.' + userName)
+            .set(newDoc);
+          return newDoc;
+        }
+      });
     } catch (error) {
       throw error;
     }
@@ -107,7 +111,7 @@ var db_model = {
       throw error;
     }
   },
-  getCurrentUser: async (userName) => {
+  getUserByUserName: async (userName) => {
     try {
       let user = await db
         .collection('users')
@@ -273,8 +277,8 @@ var db_model = {
       //Todo: chỉnh tên biến range_from, range_to cho hợp với tên biến trên database, 2 biến này thể hiện khoảng thời gian admin mong muốn tổ chức meetings.
       let range_start = new Date(parseInt(grCollection.data().startDate));
       let range_end = new Date(parseInt(grCollection.data().endDate));
-      console.log("startDate",range_start);
-      console.log("endDate",range_end);
+      console.log('startDate', range_start);
+      console.log('endDate', range_end);
       let listMembers = grCollection.data().member;
       let resultUserTimeArr = [];
       for (var m = 0; m < listMembers.length; m++) {
@@ -318,6 +322,33 @@ var db_model = {
       return Promise.resolve(resultUserTimeArr);
     }
     return Promise.reject(null);
+  },
+  getUserInGroup: async (groupID) => {
+    try {
+      let groupCollection = db.collection('groups');
+      let groupDoc = await groupCollection.doc(groupID).get();
+      if (!groupDoc.empty) {
+        let group = await groupDoc.data();
+        console.log(groupDoc.data());
+        return group.member;
+      }
+    } catch (error) {
+      throw error;
+    }
+  },
+  getTimeAndLocationUserOfGroup: async (groupName, userName) => {
+    try {
+      let timePlaceId = groupName + '.' + userName;
+      let timePlaceCollection = db.collection('timesAndPlace');
+      let timePlaceDoc = await timePlaceCollection.doc(timePlaceId).get();
+      if (!timePlaceDoc.empty) {
+        let timePlace = await timePlaceDoc.data();
+        // console.log(timePlaceDoc.data());
+        return timePlace;
+      }
+    } catch (error) {
+      throw error;
+    }
   },
 };
 module.exports = db_model;
