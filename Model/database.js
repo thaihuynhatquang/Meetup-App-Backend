@@ -185,6 +185,35 @@ var db_model = {
   },
 
   //Groups
+  getListMember: async (groupID) => {
+    try {
+      let groupRef = await db
+        .collection('groups')
+        .doc(groupID)
+        .get();
+      //  console.log(group.data().member);
+      // let memList = group.data().member;
+      let group = await groupRef.data();
+      if (group) return group.member;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getLocationFromUserName: async (groupName, userName) => {
+    try {
+      let locationRef = await db
+        .collection('timesAndPlace')
+        .doc(groupName + '.' + userName)
+        .get();
+      //  console.log(group.data().member);
+      let memLocations = await locationRef.data();
+      //if  (memLocations)
+      // console.log(memLocations);
+      return memLocations;
+    } catch (error) {
+      throw error;
+    }
+  },
   getGroup: async (groupID) => {
     try {
       let group = await db
@@ -192,7 +221,7 @@ var db_model = {
         .doc(groupID)
         .get();
       console.log(group.data());
-      return group.data();
+      return group.data().location;
     } catch (error) {
       throw error;
     }
@@ -317,3 +346,9 @@ var db_model = {
   },
 };
 module.exports = db_model;
+
+// db_model
+//   .getLocationFromUserName('Ai là triệu phú', 'thaihuynhatquang@gmail.com')
+//   .then((r) => console.log(r))
+//   .catch((e) => console.log(e));
+// db_model.getLocation("Ai là triệu phú","")

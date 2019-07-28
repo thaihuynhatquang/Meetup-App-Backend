@@ -12,7 +12,7 @@ module.exports = {
     app.get('/user/search', jsonParser, (req, res) => user_route.searchUser(req, res));
     app.post('/user/freeTime', jsonParser, (req, res) => user_route.setFreeTimeForGroup(req, res));
     app.post('/user/location', jsonParser, (req, res) => user_route.setLocationForGroup(req, res));
-
+    app.post('/group/location', jsonParser, (req, res) => groupadmin_route.getLocation(req, res));
     //To Do
     app.put('/user/profile', jsonParser, (req, res) => user_route.updateProfile(req, res)); // lam duoc thi tot
     app.get('/user/notify', (req, res) => user_route.getNotify(req, res)); // lam duoc thi tot
@@ -26,6 +26,7 @@ module.exports = {
 
     app.get('/group/:groupid/members_time', (req, res) => groupadmin_route.getMembersTime(req, res)); //lay du lieu thong ke de show graph
     app.post('/group/createMeeting', jsonParser, (req, res) => groupadmin_route.createMeeting(req, res)); // tao meeting moi ( sau khi da xem thong ke)
-    app.post('/group/midPoint', jsonParser, (req, res) => midPoint_route.MeatUp(req, res)); //lại send ở đây?
+    app.post('/group/midPoint', jsonParser, (req, res) => midPoint_route.MeatUp(req, res));
+    app.post('/group/location', jsonParser, (req, res) => groupadmin_route.getLocation(req, res));
   },
 };

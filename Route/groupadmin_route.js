@@ -2,7 +2,7 @@ var db = require('../Model/database');
 const secure = require('./secure');
 
 var groupadmin_router = {
-   getGroup: async (req, res) => {
+  getGroup: async (req, res) => {
     let user = secure.verifyUserToken(req.headers.authorization);
     if (user == null) {
       res.statusCode = 403;
@@ -17,6 +17,42 @@ var groupadmin_router = {
           console.log(error);
           res.statusCode = 400;
           res.send(error);
+        });
+    }
+  },
+  //To Do
+  getLocation: async (req, res) => {
+    let user = secure.verifyUserToken(req.headers.authorization);
+    if (user == null) {
+      res.statusCode = 403;
+      res.send('Không xác thực được người dùng');
+    } else {
+      let userName = user.u;
+
+      const groupName = req.body.name;
+      const groupID = groupName + '.' + userName;
+      console.log(groupID);
+
+      db.getListMember(groupID)
+        .then((result) => {
+
+          result.forEach((member) => {
+            db.getLocationFromUserName(groupName, member).then((r) => {
+              if (r) {
+                let temp = r.location;
+                let tempLocation = { name: member, lat: temp.lat, lon: temp.lon };
+                // console.log(temp);
+
+                res.status(200).send(tempLocation);
+              }
+            });
+          });
+
+        })
+        .catch((error) => {
+          console.log(error);
+          res.statusCode = 400;
+          res.send();
         });
     }
   },
