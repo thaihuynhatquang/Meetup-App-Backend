@@ -116,8 +116,18 @@ var groupadmin_router = {
           result = timeModel.addTimeToArray(timeObj,result);
         })
       })
+      let final=[];
+      result.forEach(time=>{
+        let obj= {};
+        // obj.x=time.from.toString().substr(5,10)+"-"+time.to.toString().substr(5,10);
+        obj.x=time.from.toString()+"-"+time.to.toString();
+
+        obj.y=time.freeMembers.length;
+        obj.freeMembers=time.freeMembers;
+        final.push(obj);
+      })
       res.statusCode=200;
-      res.send(result);
+      res.send(final);
     }else{
       res.statusCode=500;
       res.send();
