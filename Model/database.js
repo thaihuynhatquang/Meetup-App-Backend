@@ -272,8 +272,8 @@ var db_model = {
       //Todo: chỉnh tên biến range_from, range_to cho hợp với tên biến trên database, 2 biến này thể hiện khoảng thời gian admin mong muốn tổ chức meetings.
       let range_start = new Date(parseInt(grCollection.data().startDate));
       let range_end = new Date(parseInt(grCollection.data().endDate));
-      console.log("startDate",range_start);
-      console.log("endDate",range_end);
+      // console.log("startDate",range_start);
+      // console.log("endDate",range_end);
       let listMembers = grCollection.data().member;
       let resultUserTimeArr = [];
       for (var m = 0; m < listMembers.length; m++) {

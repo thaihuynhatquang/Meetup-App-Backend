@@ -100,7 +100,7 @@ var groupadmin_router = {
   },
 
   getFreeTimeOfGroup: (req,res)=>{
-    let groupID= req.params.gid;
+    let groupID= req.body.gid;
    db.getUserTimeInGroup(groupID).then (freeArr=>{
     if(freeArr instanceof Array){
     let result = [];
