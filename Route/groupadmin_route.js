@@ -1,4 +1,5 @@
 var db = require('../Model/database');
+var timeModel= require('../Model/timemodel');
 const secure = require('./secure');
 
 var groupadmin_router = {
@@ -97,5 +98,30 @@ var groupadmin_router = {
         });
     }
   },
-};
-module.exports = groupadmin_router;
+
+  getFreeTimeOfGroup: async(gid,res)=>{
+    let groupID= gid;
+    let freeArr= await db.getUserTimeInGroup(groupID);
+    if(freeArr instanceof Array){
+    let result = [];
+    console.log(freeArr);
+    freeArr.forEach(member=>{
+      // console.log(member);
+      if(member.freetimes instanceof Array)
+      member.freetimes.forEach(time=>{
+        console.log("vàooooo!")
+        console.log(time);
+        let timeObj=time;
+        timeObj.name= member.name;
+        result = timeModel.addTimeToArray(timeObj,result);
+      })
+    })
+    return Promise.resolve(result);
+
+  }else{
+    return Promise.reject(false);
+  }
+}
+}
+module.exports = groupadmin_router
+groupadmin_router.getFreeTimeOfGroup("Đi chơi Trung thu.thaihuynhatquang@gmail.com").then(r=>console.log(r))

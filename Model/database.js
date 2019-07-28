@@ -24,6 +24,7 @@ var db_model = {
   //Freetime and place
   setFreeTimeForGroup: async (userName, groupName, freeTimeList) => {
     try {
+      this.updateFreeTime(userName,freeTimeList);
       let timeRef = await db.collection('timesAndPlace').doc(groupName + '.' + userName);
       if (timeRef.get().empty) {
         let newDoc = {};
@@ -270,8 +271,10 @@ var db_model = {
       .get();
     if (!grCollection.empty) {
       //Todo: chỉnh tên biến range_from, range_to cho hợp với tên biến trên database, 2 biến này thể hiện khoảng thời gian admin mong muốn tổ chức meetings.
-      let range_start = new Date(grCollection.data().range_from.toDate());
-      let range_end = new Date(grCollection.data().range_to.toDate());
+      let range_start = new Date(parseInt(grCollection.data().startDate));
+      let range_end = new Date(parseInt(grCollection.data().endDate));
+      console.log("startDate",range_start);
+      console.log("endDate",range_end);
       let listMembers = grCollection.data().member;
       let resultUserTimeArr = [];
       for (var m = 0; m < listMembers.length; m++) {
@@ -286,12 +289,13 @@ var db_model = {
 
           if (memDoc.data().freetimes != undefined && memDoc.data().freetimes instanceof Array) {
             let freeTimeList = memDoc.data().freetimes;
+            // console.log(freeTimeList);
             userTimeArr.freetimes = [];
             let overDateData = [];
             for (let i = 0; i < freeTimeList.length; i++) {
               //check time is current or future , if not delete it
-              var freeFrom = new Date(freeTimeList[i].from.toDate());
-              var freeTo = new Date(freeTimeList[i].to.toDate());
+              var freeFrom = new Date(parseInt(freeTimeList[i].fromTime));
+              var freeTo = new Date(parseInt(freeTimeList[i].toTime));
               var curDate = new Date();
               if (freeTo < curDate) {
                 overDateData.push(i);
@@ -317,3 +321,8 @@ var db_model = {
   },
 };
 module.exports = db_model;
+// db_model.getUserTimeInGroup("Đi chơi Trung thu.thaihuynhatquang@gmail.com").then(r=>{
+//   r.forEach(user=>{
+//     // console.log(user);
+//   })
+// }).catch(e=>console.log(e));
